@@ -1,0 +1,42 @@
+{
+	"name": "bit3/contao-dependency-container",
+	"description": "Dependency container based on pimple for Contao open source cms.",
+	"keywords": ["contao", "dependency", "container", "di", "injection"],
+	"type": "contao-module",
+	"license": "LGPL-3.0+",
+	"authors": [
+		{
+			"name": "Tristan Lins",
+			"email": "tristan.lins@bit3.de",
+			"homepage": "http://bit3.de",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"email": "info@bit3.de",
+		"issues": "https://github.com/bit3/contao-dependency-container/issues",
+		"wiki": "http://de.contaowiki.org/Dependency_Container",
+		"irc": "irc://irc.freenode.org/contao.dev",
+		"source": "https://github.com/bit3/contao-dependency-container"
+	},
+	"require": {
+		"php": ">=5.3",
+		"contao/core": ">=2.11",
+		"pimple/pimple": "~1"
+	},
+	"autoload": {
+		"psr-0": {
+			"DependencyInjection": "src/"
+		}
+	},
+	"extra": {
+		"contao": {
+			"symlinks": {
+				"contao": "system/modules/dependency-container"
+			}
+		},
+		"branch-alias": {
+			"dev-master": "1.x-dev"
+		}
+	}
+}
