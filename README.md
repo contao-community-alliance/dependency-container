@@ -1,7 +1,7 @@
 Dependency Container for Contao Open Source CMS
 ===============================================
 
-This DI Container based on the [Symfony2 Dependency Injection Component](http://symfony.com/doc/2.1/components/dependency_injection/index.html).
+This DI Container based on [Pimple](http://pimple.sensiolabs.org).
 
 Register parameters and services
 --------------------------------
