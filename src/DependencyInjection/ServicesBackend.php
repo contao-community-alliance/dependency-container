@@ -49,9 +49,8 @@ class ServicesBackend extends \TwigBackendModule
 			}
 
 			$services[$group][$key] = $value;
+			ksort($services[$group]);
 		}
-
-		ksort($services);
 
 		$this->Template->lang     = $GLOBALS['TL_LANG']['dependency-container'];
 		$this->Template->services = $services;
