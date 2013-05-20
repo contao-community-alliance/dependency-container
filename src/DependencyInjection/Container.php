@@ -22,13 +22,21 @@ namespace DependencyInjection;
  */
 class Container extends \Pimple
 {
+	static public function getInstance()
+	{
+		if (!isset($GLOBALS['container'])) {
+			$GLOBALS['container'] = new Container();
+		}
+
+		return $GLOBALS['container'];
+	}
+
 	/**
 	 * Init the global dependency container.
 	 */
-	static public function init()
+	public function init()
 	{
 		global $container;
-		$container = new Container();
 
 		$config = \Config::getInstance();
 
