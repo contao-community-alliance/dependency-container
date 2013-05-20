@@ -82,7 +82,7 @@ class ServicesBackend extends \TwigBackendModule
 				if ($parameter->isPassedByReference()) {
 					$synopsis .= '&';
 				}
-				$synopsis .= '&' . $parameter->getName();
+				$synopsis .= '$' . $parameter->getName();
 				if ($parameter->isOptional()) {
 					$synopsis .= '&nbsp;=&nbsp;' . var_export($parameter->getDefaultValue(), true);
 				}
@@ -90,9 +90,9 @@ class ServicesBackend extends \TwigBackendModule
 			}
 
 			return sprintf(
-				'(callable) %s(%s)',
+				'(callable) %s(<br> &nbsp; &nbsp;%s<br>)',
 				$name,
-				implode(', ', $parameters)
+				implode(',<br> &nbsp; &nbsp;', $parameters)
 			);
 		}
 		else if (is_object($value)) {
@@ -102,15 +102,18 @@ class ServicesBackend extends \TwigBackendModule
 						array($this, 'describeValue'),
 						$value->getArrayCopy()
 					);
+					return sprintf(
+						'(object) %s(<br> &nbsp; &nbsp;%s<br>)',
+						get_class($value),
+						implode(',<br> &nbsp; &nbsp;', $values)
+					);
 				}
 				else {
-					$values[] = '&hellip;';
+					return sprintf(
+						'(object) %s(&hellip;)',
+						get_class($value)
+					);
 				}
-				return sprintf(
-					'(object) %s(%s)',
-					get_class($value),
-					implode(', ', $values)
-				);
 			}
 			else {
 				return sprintf(
@@ -125,14 +128,16 @@ class ServicesBackend extends \TwigBackendModule
 					array($this, 'describeValue'),
 					$value
 				);
+				return sprintf(
+					'(array) [%s]',
+					implode(', ', $values)
+				);
 			}
 			else {
-				$values[] = '&hellip;';
+				return sprintf(
+					'(array) [&hellip;]'
+				);
 			}
-			return sprintf(
-				'(array) [%s]',
-				implode(', ', $values)
-			);
 		}
 		else {
 			return sprintf(
