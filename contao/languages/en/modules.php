@@ -14,3 +14,4 @@
  */
 
 $GLOBALS['TL_LANG']['MOD']['dependency-container'] = 'Dependency injection container';
+$GLOBALS['TL_LANG']['MOD']['services']             = array('Services inspector', 'Overview of registered services in the DI container.');

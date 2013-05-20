@@ -13,4 +13,15 @@
  * @filesource
  */
 
+/**
+ * Hooks
+ */
 $GLOBALS['TL_HOOKS']['loadLanguageFile']['dependency-container'] = array('DependencyInjection\Container', 'init');
+
+/**
+ * Backend modules
+ */
+$GLOBALS['BE_MOD']['system']['services'] = array(
+	'callback' => 'DependencyInjection\ServicesBackend',
+	'icon'     => 'system/modules/dependency-container/assets/images/services.png',
+);

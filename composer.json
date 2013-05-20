@@ -22,7 +22,8 @@
 	"require": {
 		"php": ">=5.3",
 		"contao/core": ">=2.11",
-		"pimple/pimple": "~1"
+		"pimple/pimple": "~1",
+		"bit3/contao-twig": "~1"
 	},
 	"autoload": {
 		"psr-0": {
