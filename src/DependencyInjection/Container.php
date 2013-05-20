@@ -17,6 +17,8 @@ namespace DependencyInjection;
 
 /**
  * Class Container
+ *
+ * {@inheritdoc}
  */
 class Container extends \Pimple
 {
