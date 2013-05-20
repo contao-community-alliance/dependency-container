@@ -16,7 +16,7 @@
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['loadLanguageFile']['dependency-container'] = array('DependencyInjection\Container', 'init');
+$GLOBALS['TL_HOOKS']['loadLanguageFile']['dependency-container'] = array('DependencyInjection\ContainerInitializer', 'init');
 
 /**
  * Backend modules

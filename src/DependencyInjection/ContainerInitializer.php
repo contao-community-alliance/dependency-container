@@ -16,27 +16,20 @@
 namespace DependencyInjection;
 
 /**
- * Class Container
- *
- * {@inheritdoc}
+ * Class ContainerInitializer
  */
-class Container extends \Pimple
+class ContainerInitializer
 {
-	static public function getInstance()
-	{
-		if (!isset($GLOBALS['container'])) {
-			$GLOBALS['container'] = new Container();
-		}
-
-		return $GLOBALS['container'];
-	}
-
 	/**
 	 * Init the global dependency container.
 	 */
 	public function init()
 	{
 		global $container;
+
+		if (!isset($container)) {
+			$container = new \Pimple();
+		}
 
 		$config = \Config::getInstance();
 
