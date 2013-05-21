@@ -1,4 +1,4 @@
-Dependency Container for Contao Open Source CMS
+Dependency Injection Container for Contao Open Source CMS
 ===============================================
 
 This DI Container based on [Pimple](http://pimple.sensiolabs.org).
