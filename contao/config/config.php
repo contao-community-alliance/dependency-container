@@ -16,7 +16,12 @@
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['loadLanguageFile']['dependency-container'] = array('DependencyInjection\ContainerInitializer', 'init');
+if (version_compare(VERSION, '3.1', '>=')) {
+	$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('DependencyInjection\ContainerInitializer', 'init');
+}
+else {
+	$GLOBALS['TL_HOOKS']['loadLanguageFile']['dependency-container'] = array('DependencyInjection\ContainerInitializer', 'init');
+}
 
 /**
  * Backend modules
