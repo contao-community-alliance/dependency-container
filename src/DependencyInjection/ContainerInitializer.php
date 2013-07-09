@@ -43,8 +43,9 @@ class ContainerInitializer
 	 */
 	static public function autoload($className)
 	{
-		if ($className == 'Frontend' || $className == 'Backend') {
+		if ($className == 'RequestToken') {
 			static::init();
+			spl_autoload_unregister('DependencyInjection\ContainerInitializer::autoload');
 		}
 		return false;
 	}
