@@ -21,7 +21,7 @@ DependencyInjection\ContainerInitializer::lazyInit();
 /**
  * Backend modules
  */
-$GLOBALS['BE_MOD']['system']['services'] = array(
+$GLOBALS['BE_MOD']['developers']['services'] = array(
 	'callback' => 'DependencyInjection\ServicesBackend',
 	'icon'     => 'system/modules/dependency-container/assets/images/services.png',
 );
