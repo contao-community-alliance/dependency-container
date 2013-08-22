@@ -22,6 +22,7 @@
 	"require": {
 		"php": ">=5.3",
 		"contao/core": ">=2.11",
+		"contao-community-alliance/composer-installer": "*",
 		"pimple/pimple": "~1",
 		"bit3/contao-twig": "~1"
 	},
