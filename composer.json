@@ -33,7 +33,7 @@
 	},
 	"extra": {
 		"contao": {
-			"symlinks": {
+			"sources": {
 				"contao": "system/modules/dependency-container"
 			}
 		},
