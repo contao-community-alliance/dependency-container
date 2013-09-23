@@ -28,6 +28,9 @@
 	"suggest": {
 		"bit3/contao-dependency-container-inspector": "*"
 	},
+	"replace": {
+		"contao-legacy/dependency-container": "*"
+	},
 	"autoload": {
 		"psr-0": {
 			"DependencyInjection\\Container": "src/"
