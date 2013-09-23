@@ -23,12 +23,14 @@
 		"php": ">=5.3",
 		"contao/core": ">=2.11",
 		"contao-community-alliance/composer-installer": "*",
-		"pimple/pimple": "~1",
-		"bit3/contao-twig": "~1"
+		"pimple/pimple": "~1"
+	},
+	"suggest": {
+		"bit3/contao-dependency-container-inspector": "*"
 	},
 	"autoload": {
 		"psr-0": {
-			"DependencyInjection": "src/"
+			"DependencyInjection\\Container": "src/"
 		}
 	},
 	"extra": {
@@ -38,7 +40,7 @@
 			}
 		},
 		"branch-alias": {
-			"dev-master": "1.x-dev"
+			"dev-master": "1.2.x-dev"
 		}
 	}
 }

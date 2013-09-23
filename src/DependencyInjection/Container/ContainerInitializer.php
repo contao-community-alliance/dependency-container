@@ -13,7 +13,7 @@
  * @filesource
  */
 
-namespace DependencyInjection;
+namespace DependencyInjection\Container;
 
 /**
  * Class ContainerInitializer
@@ -26,7 +26,7 @@ class ContainerInitializer
 	static public function lazyInit()
 	{
 		spl_autoload_register(
-			'DependencyInjection\ContainerInitializer::autoload',
+			'DependencyInjection\Container\ContainerInitializer::autoload',
 			true,
 			true
 		);
@@ -45,7 +45,7 @@ class ContainerInitializer
 	{
 		if ($className == 'RequestToken') {
 			static::init();
-			spl_autoload_unregister('DependencyInjection\ContainerInitializer::autoload');
+			spl_autoload_unregister('DependencyInjection\Container\ContainerInitializer::autoload');
 		}
 		return false;
 	}
