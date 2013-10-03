@@ -80,6 +80,33 @@ class ContainerInitializer
 			include $file;
 		}
 
+		if (
+			isset($GLOBALS['TL_HOOKS']['initializeDependencyContainer']) &&
+			is_array($GLOBALS['TL_HOOKS']['initializeDependencyContainer'])
+		) {
+			foreach ($GLOBALS['TL_HOOKS']['initializeDependencyContainer'] as $callback) {
+				if (is_callable($callback)) {
+					call_user_func($callback);
+				}
+				else {
+					$class = new \ReflectionClass($callback[0]);
+					$method = $class->getMethod($callback[1]);
+					$object = null;
+
+					if (!$method->isStatic()) {
+						if ($class->hasMethod('getInstance')) {
+							$object = $class->getMethod('getInstance')->invoke(null);
+						}
+						else {
+							$object = $class->newInstance();
+						}
+					}
+
+					$method->invoke($object);
+				}
+			}
+		}
+
 		unset($GLOBALS['TL_HOOKS']['loadLanguageFile']['dependency-container']);
 	}
 }
