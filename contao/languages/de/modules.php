@@ -6,10 +6,10 @@
  *
  * PHP version 5
  *
- * @copyright  bit3 UG 2013
+ * @copyright  (c) 2013 Contao Community Alliance
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @package    avisota
- * @license    LGPL-3.0+#
+ * @package    dependency-container
+ * @license    LGPL-3.0+
  * @filesource
  */
 
