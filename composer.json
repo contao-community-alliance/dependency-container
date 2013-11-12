@@ -29,7 +29,7 @@
 		"contao-community-alliance/dependency-container-inspector": "*"
 	},
 	"replace": {
-		"contao-legacy/dependency-container": "*",
+		"contao-legacy/dependency-container": "self.version",
 		"bit3/contao-dependency-container": "*"
 	},
 	"autoload": {
