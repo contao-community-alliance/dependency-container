@@ -30,7 +30,7 @@
 	},
 	"replace": {
 		"contao-legacy/dependency-container": "self.version",
-		"bit3/contao-dependency-container": "*"
+		"bit3/contao-dependency-container": "self.version"
 	},
 	"autoload": {
 		"psr-0": {
