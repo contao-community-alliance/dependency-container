@@ -3,6 +3,7 @@
 	"description": "Dependency container based on pimple for Contao open source cms.",
 	"keywords": ["contao", "dependency", "container", "di", "injection"],
 	"type": "contao-module",
+	"homepage":"http://c-c-a.org/",
 	"license": "LGPL-3.0+",
 	"authors": [
 		{
