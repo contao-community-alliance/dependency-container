@@ -55,10 +55,7 @@ class ContainerInitializer
 			is_array($GLOBALS['TL_HOOKS']['initializeDependencyContainer'])
 		) {
 			foreach ($GLOBALS['TL_HOOKS']['initializeDependencyContainer'] as $callback) {
-				if (is_callable($callback)) {
-					call_user_func($callback);
-				}
-				else {
+				if (is_array($callback)) {
 					$class = new \ReflectionClass($callback[0]);
 					$method = $class->getMethod($callback[1]);
 					$object = null;
@@ -73,6 +70,9 @@ class ContainerInitializer
 					}
 
 					$method->invoke($object);
+				}
+				else {
+					call_user_func($callback);
 				}
 			}
 		}
