@@ -21,39 +21,9 @@ namespace DependencyInjection\Container;
 class ContainerInitializer
 {
 	/**
-	 * Lazy initialize
-	 */
-	static public function lazyInit()
-	{
-		spl_autoload_register(
-			'DependencyInjection\Container\ContainerInitializer::autoload',
-			true,
-			true
-		);
-		if (version_compare(VERSION, '3', '<')) {
-			spl_autoload_register('__autoload');
-		}
-	}
-
-	/**
-	 * Initialize
-	 * @param $className
-	 *
-	 * @return bool
-	 */
-	static public function autoload($className)
-	{
-		if ($className == 'RequestToken') {
-			static::init();
-			spl_autoload_unregister('DependencyInjection\Container\ContainerInitializer::autoload');
-		}
-		return false;
-	}
-
-	/**
 	 * Init the global dependency container.
 	 */
-	static public function init()
+	public function init()
 	{
 		global $container;
 
