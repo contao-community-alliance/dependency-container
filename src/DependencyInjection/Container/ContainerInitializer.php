@@ -69,10 +69,10 @@ class ContainerInitializer
 						}
 					}
 
-					$method->invoke($object);
+					$method->invoke($object, $container);
 				}
 				else {
-					call_user_func($callback);
+					call_user_func($callback, $container);
 				}
 			}
 		}
