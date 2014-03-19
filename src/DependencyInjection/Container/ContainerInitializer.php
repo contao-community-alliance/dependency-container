@@ -76,7 +76,5 @@ class ContainerInitializer
 				}
 			}
 		}
-
-		unset($GLOBALS['TL_HOOKS']['loadLanguageFile']['dependency-container']);
 	}
 }
