@@ -20,61 +20,61 @@ namespace DependencyInjection\Container;
  */
 class ContainerInitializer
 {
-	/**
-	 * Init the global dependency container.
-	 */
-	public function init()
-	{
-		global $container;
+    /**
+     * Init the global dependency container.
+     */
+    public function init()
+    {
+        global $container;
 
-		if (!isset($container)) {
-			$container = new \Pimple();
-		}
+        if (!isset($container)) {
+            $container = new \Pimple();
+        }
 
-		$config = \Config::getInstance();
+        $config = \Config::getInstance();
 
-		// include the module services configurations
-		foreach ($config->getActiveModules() as $module)
-		{
-			$file = TL_ROOT . '/system/modules/' . $module . '/config/services.php';
+        // include the module services configurations
+        foreach ($config->getActiveModules() as $module)
+        {
+            $file = TL_ROOT . '/system/modules/' . $module . '/config/services.php';
 
-			if (file_exists($file)) {
-				include $file;
-			}
-		}
+            if (file_exists($file)) {
+                include $file;
+            }
+        }
 
-		// include the local services configuration
-		$file = TL_ROOT . '/system/config/services.php';
+        // include the local services configuration
+        $file = TL_ROOT . '/system/config/services.php';
 
-		if (file_exists($file)) {
-			include $file;
-		}
+        if (file_exists($file)) {
+            include $file;
+        }
 
-		if (
-			isset($GLOBALS['TL_HOOKS']['initializeDependencyContainer']) &&
-			is_array($GLOBALS['TL_HOOKS']['initializeDependencyContainer'])
-		) {
-			foreach ($GLOBALS['TL_HOOKS']['initializeDependencyContainer'] as $callback) {
-				if (is_array($callback)) {
-					$class = new \ReflectionClass($callback[0]);
-					$method = $class->getMethod($callback[1]);
-					$object = null;
+        if (
+            isset($GLOBALS['TL_HOOKS']['initializeDependencyContainer']) &&
+            is_array($GLOBALS['TL_HOOKS']['initializeDependencyContainer'])
+        ) {
+            foreach ($GLOBALS['TL_HOOKS']['initializeDependencyContainer'] as $callback) {
+                if (is_array($callback)) {
+                    $class = new \ReflectionClass($callback[0]);
+                    $method = $class->getMethod($callback[1]);
+                    $object = null;
 
-					if (!$method->isStatic()) {
-						if ($class->hasMethod('getInstance')) {
-							$object = $class->getMethod('getInstance')->invoke(null);
-						}
-						else {
-							$object = $class->newInstance();
-						}
-					}
+                    if (!$method->isStatic()) {
+                        if ($class->hasMethod('getInstance')) {
+                            $object = $class->getMethod('getInstance')->invoke(null);
+                        }
+                        else {
+                            $object = $class->newInstance();
+                        }
+                    }
 
-					$method->invoke($object, $container);
-				}
-				else {
-					call_user_func($callback, $container);
-				}
-			}
-		}
-	}
+                    $method->invoke($object, $container);
+                }
+                else {
+                    call_user_func($callback, $container);
+                }
+            }
+        }
+    }
 }

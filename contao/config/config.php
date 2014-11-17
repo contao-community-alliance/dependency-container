@@ -17,6 +17,6 @@
  * Lazy initialize dependency container.
  */
 $GLOBALS['TL_HOOKS']['initializeSystem']['dependency-container'] = array(
-	'DependencyInjection\Container\ContainerInitializer',
-	'init',
+    'DependencyInjection\Container\ContainerInitializer',
+    'init',
 );
