@@ -1,53 +1,57 @@
 {
-	"name": "contao-community-alliance/dependency-container",
-	"description": "Dependency container based on pimple for Contao open source cms.",
-	"keywords": ["contao", "dependency", "container", "di", "injection"],
-	"type": "contao-module",
-	"homepage":"http://c-c-a.org/",
-	"license": "LGPL-3.0+",
-	"authors": [
-		{
-			"name": "Tristan Lins",
-			"email": "tristan.lins@bit3.de",
-			"homepage": "http://bit3.de",
-			"role": "Developer"
-		}
-	],
-	"support": {
-		"email": "info@bit3.de",
-		"issues": "https://github.com/contao-community-alliance/dependency-container/issues",
-		"wiki": "https://github.com/contao-community-alliance/dependency-container/wiki",
-		"irc": "irc://irc.freenode.org/contao.dev",
-		"source": "https://github.com/contao-community-alliance/dependency-container"
-	},
-	"require": {
-		"php": ">=5.3",
-		"contao/core": ">=2.11,<3.4",
-		"contao-community-alliance/composer-plugin": "~2.0",
-		"contao-community-alliance/backports-initialize-system": "~1.0",
-		"pimple/pimple": "~1.0"
-	},
-	"suggest": {
-		"contao-community-alliance/dependency-container-inspector": "*"
-	},
-	"replace": {
-		"contao-legacy/dependency-container": "self.version",
-		"bit3/contao-dependency-container": "self.version"
-	},
-	"autoload": {
-		"psr-0": {
-			"DependencyInjection\\Container": "src/"
-		}
-	},
-	"extra": {
-		"contao": {
-			"sources": {
-				"contao": "system/modules/dependency-container"
-			}
-		},
-		"branch-alias": {
-			"dev-master": "1.5.x-dev",
-			"dev-develop": "1.6.x-dev"
-		}
-	}
+  "name": "contao-community-alliance/dependency-container",
+  "description": "Dependency container based on pimple for Contao open source cms.",
+  "keywords": ["contao", "dependency", "container", "di", "injection"],
+  "type": "contao-module",
+  "homepage":"http://c-c-a.org/",
+  "license": "LGPL-3.0+",
+  "authors": [
+    {
+      "name": "Tristan Lins",
+      "email": "tristan.lins@bit3.de",
+      "homepage": "http://bit3.de",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "email": "info@bit3.de",
+    "issues": "https://github.com/contao-community-alliance/dependency-container/issues",
+    "wiki": "https://github.com/contao-community-alliance/dependency-container/wiki",
+    "irc": "irc://irc.freenode.org/contao.dev",
+    "source": "https://github.com/contao-community-alliance/dependency-container"
+  },
+  "require": {
+    "php": ">=5.3",
+    "contao/core": ">=2.11,<4-dev",
+    "contao-community-alliance/composer-plugin": "~2.0",
+    "contao-community-alliance/backports-initialize-system": "~1.0",
+    "pimple/pimple": "~1.0"
+  },
+  "require-dev": {
+    "contao-community-alliance/build-system": "~1.0",
+    "contao-community-alliance/build-system-all-tasks": "~1.0",
+    "contao-community-alliance/coding-standard": "~1.0"
+  },
+  "replace": {
+    "contao-legacy/dependency-container": "self.version",
+    "bit3/contao-dependency-container": "self.version"
+  },
+  "autoload": {
+    "psr-0": {
+      "DependencyInjection\\Container": "src/"
+    }
+  },
+  "extra": {
+    "contao": {
+      "sources": {
+        "contao": "system/modules/dependency-container"
+      }
+    },
+    "branch-alias": {
+      "dev-master": "1.6.x-dev",
+      "dev-develop": "1.7.x-dev"
+    }
+  },
+  "prefer-stable": true,
+  "minimum-stability": "dev"
 }
