@@ -27,8 +27,6 @@
     "contao-community-alliance/backports-initialize-system": "~1.0",
     "pimple/pimple": "~1.0"
   },
-  "suggest": {
-    "contao-community-alliance/dependency-container-inspector": "*"
   },
   "replace": {
     "contao-legacy/dependency-container": "self.version",
