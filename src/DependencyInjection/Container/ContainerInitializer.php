@@ -182,7 +182,7 @@ class ContainerInitializer
 
             // Work around the fact that \Contao\Database::getInstance() always creates an instance,
             // even when no driver is configured.
-            if ($config->get('dbDriver')) {
+            if (!$config->get('dbDriver')) {
                 throw new \RuntimeException('Contao Database is not properly configured.');
             }
 
