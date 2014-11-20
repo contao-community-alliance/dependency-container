@@ -113,8 +113,10 @@ class ContainerInitializer
      * @param string $className The class name to load.
      *
      * @return callable
+     *
+     * @internal This will become protected or private when PHP 5.3 support get's dropped.
      */
-    protected function getSingleton($className)
+    public function getSingleton($className)
     {
         $initializer = $this;
         return function () use ($initializer, $className) {
