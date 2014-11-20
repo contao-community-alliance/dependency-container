@@ -222,9 +222,9 @@ class ContainerInitializer
             }
 
             if (TL_MODE == 'BE') {
-                return call_user_func($this->getSingleton('\\BackendUser'));
+                return call_user_func($initializer->getSingleton('\\BackendUser'));
             } elseif (TL_MODE == 'FE') {
-                return call_user_func($this->getSingleton('\\FrontendUser'));
+                return call_user_func($initializer->getSingleton('\\FrontendUser'));
             }
 
             throw new \RuntimeException(
