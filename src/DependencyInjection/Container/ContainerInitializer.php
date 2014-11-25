@@ -113,8 +113,10 @@ class ContainerInitializer
      * @param string $className The class name to load.
      *
      * @return callable
+     *
+     * @internal This will become protected or private when PHP 5.3 support get's dropped.
      */
-    protected function getSingleton($className)
+    public function getSingleton($className)
     {
         $initializer = $this;
         return function () use ($initializer, $className) {
@@ -182,7 +184,7 @@ class ContainerInitializer
 
             // Work around the fact that \Contao\Database::getInstance() always creates an instance,
             // even when no driver is configured.
-            if ($config->get('dbDriver')) {
+            if (!$config->get('dbDriver')) {
                 throw new \RuntimeException('Contao Database is not properly configured.');
             }
 
@@ -222,9 +224,9 @@ class ContainerInitializer
             }
 
             if (TL_MODE == 'BE') {
-                return call_user_func($this->getSingleton('\\BackendUser'));
+                return call_user_func($initializer->getSingleton('\\BackendUser'));
             } elseif (TL_MODE == 'FE') {
-                return call_user_func($this->getSingleton('\\FrontendUser'));
+                return call_user_func($initializer->getSingleton('\\FrontendUser'));
             }
 
             throw new \RuntimeException(
