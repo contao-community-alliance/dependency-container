@@ -223,6 +223,15 @@ class ContainerInitializer
                 );
             }
 
+            /** @var \Config $config */
+            $config = $container['config'];
+            // Work around the fact that \Contao\Database::getInstance() always creates an instance,
+            // even when no driver is configured (Database and Config are being imported into the user class and there-
+            // fore causing an fatal error).
+            if (!$config->get('dbDriver')) {
+                throw new \RuntimeException('Contao Database is not properly configured.');
+            }
+
             if (TL_MODE == 'BE') {
                 return call_user_func($initializer->getSingleton('\\BackendUser'));
             } elseif (TL_MODE == 'FE') {

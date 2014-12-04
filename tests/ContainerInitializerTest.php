@@ -40,12 +40,18 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
             array(
                 'getInstance',
                 'getActiveModules',
+                'get'
             )
         );
 
         $stub->expects($this->any())
             ->method('getActiveModules')
             ->will($this->returnValue(array()));
+
+        $stub->expects($this->any())
+            ->method('get')
+            ->with('dbDriver')
+            ->will($this->returnValue('mySQL'));
 
         $GLOBALS['container']['config'] = $stub;
     }
