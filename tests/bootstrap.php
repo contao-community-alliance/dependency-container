@@ -29,3 +29,9 @@ if (
         'php composer.phar install'.PHP_EOL;
     exit(1);
 }
+
+$GLOBALS['TL_HOOKS'] = array(
+    'getPageLayout' => array(
+        array('Another', 'hook')
+    ),
+);

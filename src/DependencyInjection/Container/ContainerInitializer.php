@@ -251,6 +251,8 @@ class ContainerInitializer
      * @param \Pimple $container The DIC to populate.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function provideSingletons(\Pimple $container)
     {
@@ -276,6 +278,15 @@ class ContainerInitializer
 
         if (!isset($container['session'])) {
             $container['session'] = $container->share($this->getSessionProvider());
+        }
+
+        if (!isset($container['page-provider'])) {
+            $container['page-provider'] = new PageProvider();
+
+            $GLOBALS['TL_HOOKS']['getPageLayout'] = array_merge(
+                array(array('DependencyInjection\Container\PageProvider', 'setPage')),
+                $GLOBALS['TL_HOOKS']['getPageLayout']
+            );
         }
     }
 
