@@ -7,6 +7,7 @@
  *
  * @package    dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Tristan Lins <tristan@lins.io>
  * @copyright  (c) 2013 Contao Community Alliance
  * @license    LGPL-3.0+
  * @filesource
