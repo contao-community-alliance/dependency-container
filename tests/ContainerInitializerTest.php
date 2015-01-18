@@ -7,8 +7,8 @@
  * PHP version 5
  *
  * @copyright  (c) 2013 Contao Community Alliance
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Tristan Lins <tristan@lins.io>
  * @package    dependency-container
  * @license    LGPL-3.0+
  * @filesource
@@ -83,6 +83,16 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($GLOBALS['container']['input']));
         $this->assertTrue(isset($GLOBALS['container']['user']));
         $this->assertTrue(isset($GLOBALS['container']['session']));
+        $this->assertTrue(isset($GLOBALS['container']['page-provider']));
+
+        $this->assertEquals(
+            0,
+            array_search(
+                array('DependencyInjection\Container\PageProvider', 'setPage'),
+                $GLOBALS['TL_HOOKS']['getPageLayout']
+            ),
+            'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
+        );
 
         $this->assertInstanceOf('\FrontendUser', $GLOBALS['container']['user']);
     }

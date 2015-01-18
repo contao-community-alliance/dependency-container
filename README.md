@@ -29,3 +29,56 @@ class MyClass
 	}
 }
 ```
+
+Build-in services
+-----------------
+
+### The config object
+
+```php
+/** @var \Config $config */
+$config = $container['config'];
+```
+
+### The environment object
+
+```php
+/** @var \Environment $environment */
+$environment = $container['environment'];
+```
+
+### The database connection
+
+```php
+/** @var \Database $database */
+$database = $container['database.connection'];
+```
+
+### The input object
+
+```php
+/** @var \Input $input */
+$input = $container['input'];
+```
+
+### The backend or frontend user, depend on TL_MODE
+
+```php
+/** @var \BackendUser|\FrontendUser $user */
+$user = $container['user'];
+```
+
+### The session object
+
+```php
+/** @var \Session $session */
+$session = $container['session'];
+```
+
+### Lazy access to the $objPage object
+
+```php
+/** @var DependencyInjection\Container\PageProvider */
+$pageProvider = $container['page-provider'];
+$page         = $pageProvider->getPage();
+```

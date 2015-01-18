@@ -7,6 +7,7 @@
  *
  * @package    dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
+ * @author     Tristan Lins <tristan@lins.io>
  * @copyright  (c) 2013 Contao Community Alliance
  * @license    LGPL-3.0+
  * @filesource
@@ -29,3 +30,9 @@ if (
         'php composer.phar install'.PHP_EOL;
     exit(1);
 }
+
+$GLOBALS['TL_HOOKS'] = array(
+    'getPageLayout' => array(
+        array('Another', 'hook')
+    ),
+);
