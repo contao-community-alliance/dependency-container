@@ -283,10 +283,16 @@ class ContainerInitializer
         if (!isset($container['page-provider'])) {
             $container['page-provider'] = new PageProvider();
 
-            $GLOBALS['TL_HOOKS']['getPageLayout'] = array_merge(
-                array(array('DependencyInjection\Container\PageProvider', 'setPage')),
-                $GLOBALS['TL_HOOKS']['getPageLayout']
-            );
+            if (isset($GLOBALS['TL_HOOKS']['getPageLayout']) && is_array($GLOBALS['TL_HOOKS']['getPageLayout'])) {
+                $GLOBALS['TL_HOOKS']['getPageLayout'] = array_merge(
+                    array(array('DependencyInjection\Container\PageProvider', 'setPage')),
+                    $GLOBALS['TL_HOOKS']['getPageLayout']
+                );
+            } else {
+                $GLOBALS['TL_HOOKS']['getPageLayout'] = array(
+                    array('DependencyInjection\Container\PageProvider', 'setPage')
+                );
+            }
         }
     }
 
