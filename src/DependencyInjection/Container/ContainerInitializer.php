@@ -74,6 +74,8 @@ class ContainerInitializer
      *
      * @return void
      *
+     * @throws \InvalidArgumentException When the hook method is invalid.
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
