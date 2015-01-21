@@ -265,7 +265,7 @@ class ContainerInitializer
     }
 
     /**
-     * Add the Contao singletons to the DIC.
+     * Add the Contao Config Singleton to the DIC.
      *
      * @param \Pimple $container The DIC to populate.
      *
@@ -273,28 +273,81 @@ class ContainerInitializer
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function provideSingletons(\Pimple $container)
+    private function provideConfig(\Pimple $container)
     {
         if (!isset($container['config'])) {
             $container['config'] = $container->share($this->getConfigProvider());
         }
+    }
 
+    /**
+     * Add the Contao Environment Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideEnvironment(\Pimple $container)
+    {
         if (!isset($container['environment'])) {
             $container['environment'] = $container->share($this->getEnvironmentProvider());
         }
+    }
 
+    /**
+     * Add the Contao Database Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideDatabase(\Pimple $container)
+    {
         if (!isset($container['database.connection'])) {
             $container['database.connection'] = $container->share($this->getDatabaseProvider());
         }
+    }
 
+    /**
+     * Add the Contao Input Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideInput(\Pimple $container)
+    {
         if (!isset($container['input'])) {
             $container['input'] = $container->share($this->getInputProvider());
         }
+    }
 
+    /**
+     * Add the Contao User Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideUser(\Pimple $container)
+    {
         if (!isset($container['user'])) {
             $container['user'] = $container->share($this->getUserProvider());
         }
+    }
 
+    /**
+     * Add the Contao Session Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function provideSession(\Pimple $container)
+    {
         if (!isset($container['session'])) {
             $container['session'] = $container->share($this->getSessionProvider());
         }
@@ -313,6 +366,23 @@ class ContainerInitializer
                 );
             }
         }
+    }
+
+    /**
+     * Add the Contao singletons to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    protected function provideSingletons(\Pimple $container)
+    {
+        $this->provideConfig($container);
+        $this->provideEnvironment($container);
+        $this->provideDatabase($container);
+        $this->provideInput($container);
+        $this->provideUser($container);
+        $this->provideSession($container);
     }
 
     /**
