@@ -50,11 +50,31 @@ class ContainerInitializer
     }
 
     /**
+     * Retrieve an instance of a certain class.
+     *
+     * @param string $className The class name.
+     *
+     * @return object
+     */
+    public function getInstanceOf($className)
+    {
+        $class = new \ReflectionClass($className);
+
+        if ($class->hasMethod('getInstance')) {
+            return $class->getMethod('getInstance')->invoke(null);
+        }
+
+        return $class->newInstance();
+    }
+
+    /**
      * Call the initialization hooks.
      *
      * @param \Pimple $container The container that got initialized.
      *
      * @return void
+     *
+     * @throws \InvalidArgumentException When the hook method is invalid.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -67,19 +87,27 @@ class ContainerInitializer
         ) {
             foreach ($GLOBALS['TL_HOOKS']['initializeDependencyContainer'] as $callback) {
                 if (is_array($callback)) {
-                    $class  = new \ReflectionClass($callback[0]);
-                    $method = $class->getMethod($callback[1]);
+                    $class = new \ReflectionClass($callback[0]);
+                    if (!$class->hasMethod($callback[1])) {
+                        if ($class->hasMethod('__call')) {
+                            $method = $class->getMethod('__call');
+                            $args   = array($callback[1], $container);
+                        } else {
+                            throw new \InvalidArgumentException(
+                                sprintf('No such Method %s::%s', $callback[0], $callback[1])
+                            );
+                        }
+                    } else {
+                        $method = $class->getMethod($callback[1]);
+                        $args   = array($container);
+                    }
                     $object = null;
 
                     if (!$method->isStatic()) {
-                        if ($class->hasMethod('getInstance')) {
-                            $object = $class->getMethod('getInstance')->invoke(null);
-                        } else {
-                            $object = $class->newInstance();
-                        }
+                        $object = $this->getInstanceOf($callback[0]);
                     }
 
-                    $method->invoke($object, $container);
+                    $method->invokeArgs($object, $args);
                 } else {
                     call_user_func($callback, $container);
                 }
@@ -122,14 +150,7 @@ class ContainerInitializer
         return function () use ($initializer, $className) {
             $initializer->ensureClassIsLoaded($className);
 
-            $class  = new \ReflectionClass($className);
-            $object = null;
-
-            if ($class->hasMethod('getInstance')) {
-                $object = $class->getMethod('getInstance')->invoke(null);
-            } else {
-                $object = $class->newInstance();
-            }
+            $object = $initializer->getInstanceOf($className);
 
             return $object;
         };
@@ -246,7 +267,7 @@ class ContainerInitializer
     }
 
     /**
-     * Add the Contao singletons to the DIC.
+     * Add the Contao Config Singleton to the DIC.
      *
      * @param \Pimple $container The DIC to populate.
      *
@@ -254,28 +275,81 @@ class ContainerInitializer
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function provideSingletons(\Pimple $container)
+    private function provideConfig(\Pimple $container)
     {
         if (!isset($container['config'])) {
             $container['config'] = $container->share($this->getConfigProvider());
         }
+    }
 
+    /**
+     * Add the Contao Environment Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideEnvironment(\Pimple $container)
+    {
         if (!isset($container['environment'])) {
             $container['environment'] = $container->share($this->getEnvironmentProvider());
         }
+    }
 
+    /**
+     * Add the Contao Database Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideDatabase(\Pimple $container)
+    {
         if (!isset($container['database.connection'])) {
             $container['database.connection'] = $container->share($this->getDatabaseProvider());
         }
+    }
 
+    /**
+     * Add the Contao Input Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideInput(\Pimple $container)
+    {
         if (!isset($container['input'])) {
             $container['input'] = $container->share($this->getInputProvider());
         }
+    }
 
+    /**
+     * Add the Contao User Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    private function provideUser(\Pimple $container)
+    {
         if (!isset($container['user'])) {
             $container['user'] = $container->share($this->getUserProvider());
         }
+    }
 
+    /**
+     * Add the Contao Session Singleton to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function provideSession(\Pimple $container)
+    {
         if (!isset($container['session'])) {
             $container['session'] = $container->share($this->getSessionProvider());
         }
@@ -294,6 +368,23 @@ class ContainerInitializer
                 );
             }
         }
+    }
+
+    /**
+     * Add the Contao singletons to the DIC.
+     *
+     * @param \Pimple $container The DIC to populate.
+     *
+     * @return void
+     */
+    protected function provideSingletons(\Pimple $container)
+    {
+        $this->provideConfig($container);
+        $this->provideEnvironment($container);
+        $this->provideDatabase($container);
+        $this->provideInput($container);
+        $this->provideUser($container);
+        $this->provideSession($container);
     }
 
     /**
