@@ -393,14 +393,13 @@ class ContainerInitializer
      * @param \Pimple $container The DIC to populate.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function loadServiceConfigurations($container)
     {
-        /** @var \Contao\Config $config */
-        $config = $container['config'];
-
         // include the module services configurations
-        foreach ($config->getActiveModules() as $module) {
+        foreach (\ModuleLoader::getActive() as $module) {
             $file = TL_ROOT . '/system/modules/' . $module . '/config/services.php';
 
             if (file_exists($file)) {
