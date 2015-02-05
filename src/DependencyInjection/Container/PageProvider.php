@@ -8,6 +8,7 @@
  *
  * @copyright  (c) 2013 Contao Community Alliance
  * @author         Tristan Lins <tristan.lins@bit3.de>
+ * @author         Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @package        dependency-container
  * @license        LGPL-3.0+
  * @filesource
