@@ -7,9 +7,14 @@
   "license": "LGPL-3.0+",
   "authors": [
     {
-      "name": "Tristan Lins",
-      "email": "tristan.lins@bit3.de",
-      "homepage": "http://bit3.de",
+      "name": "Christian Schiffler",
+      "email": "c.schiffler@cyberspectrum.de",
+      "homepage": "http://www.cyberspectrum.de",
+      "role": "Developer"
+    },
+    {
+      "name": "Stefan Heimes",
+      "email": "stefan_heimes@hotmail.com",
       "role": "Developer"
     }
   ],
