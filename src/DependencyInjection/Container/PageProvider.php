@@ -33,6 +33,7 @@ class PageProvider
      * @return PageProvider
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public static function getInstance()
     {
