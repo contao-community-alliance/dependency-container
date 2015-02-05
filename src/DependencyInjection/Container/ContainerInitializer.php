@@ -388,6 +388,16 @@ class ContainerInitializer
     }
 
     /**
+     * Return the active modules as array.
+     *
+     * @return string[] An array of active modules
+     */
+    protected function getActiveModules()
+    {
+        return \ModuleLoader::getActive();
+    }
+
+    /**
      * Load all services files.
      *
      * @param \Pimple $container The DIC to populate.
@@ -399,7 +409,7 @@ class ContainerInitializer
     protected function loadServiceConfigurations($container)
     {
         // include the module services configurations
-        foreach (\ModuleLoader::getActive() as $module) {
+        foreach ($this->getActiveModules() as $module) {
             $file = TL_ROOT . '/system/modules/' . $module . '/config/services.php';
 
             if (file_exists($file)) {

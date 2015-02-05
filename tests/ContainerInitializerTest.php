@@ -39,14 +39,9 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
             'Config',
             array(
                 'getInstance',
-                'getActiveModules',
                 'get'
             )
         );
-
-        $stub->expects($this->any())
-            ->method('getActiveModules')
-            ->will($this->returnValue(array()));
 
         $stub->expects($this->any())
             ->method('get')
@@ -74,7 +69,11 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
         define('TL_MODE', 'FE');
         $this->getMock('FrontendUser');
 
-        $initializer = new ContainerInitializer();
+        $initializer = $this->getMock('DependencyInjection\Container\ContainerInitializer', array('getActiveModules'));
+        $initializer->expects($this->any())
+            ->method('getActiveModules')
+            ->will($this->returnValue(array()));
+        /** @var ContainerInitializer $initializer */
         $initializer->init();
 
         $this->assertTrue(isset($GLOBALS['container']['config']));
