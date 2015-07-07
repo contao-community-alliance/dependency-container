@@ -24,7 +24,7 @@ class PageProvider
     /**
      * The current page.
      *
-     * @var \PageModel
+     * @var \PageModel|null
      */
     private $page;
 
