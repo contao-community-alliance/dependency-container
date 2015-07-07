@@ -140,7 +140,7 @@ class ContainerInitializer
      *
      * @param string $className The class name to load.
      *
-     * @return callable
+     * @return \Closure
      *
      * @internal This will become protected or private when PHP 5.3 support get's dropped.
      */
@@ -159,7 +159,7 @@ class ContainerInitializer
     /**
      * Create the closure to provide the Contao Config.
      *
-     * @return callable
+     * @return \Closure
      */
     protected function getConfigProvider()
     {
@@ -169,7 +169,7 @@ class ContainerInitializer
     /**
      * Create the closure to provide the Contao Environment.
      *
-     * @return callable
+     * @return \Closure
      */
     protected function getEnvironmentProvider()
     {
@@ -179,7 +179,7 @@ class ContainerInitializer
     /**
      * Create the closure to provide the Contao Session.
      *
-     * @return callable
+     * @return \Closure
      */
     protected function getSessionProvider()
     {
@@ -189,7 +189,7 @@ class ContainerInitializer
     /**
      * Create the closure to provide the Contao Config.
      *
-     * @return callable
+     * @return \Closure
      */
     // @codingStandardsIgnoreStart - Ignore false positive for thrown exception.
     protected function getDatabaseProvider()
@@ -217,7 +217,7 @@ class ContainerInitializer
     /**
      * Create the closure to provide the Contao Config.
      *
-     * @return callable
+     * @return \Closure
      */
     protected function getInputProvider()
     {
@@ -227,7 +227,7 @@ class ContainerInitializer
     /**
      * Create the closure to provide the Contao Config.
      *
-     * @return callable
+     * @return \Closure
      *
      * @throws \RuntimeException When an unknown TL_MODE is encountered.
      *
