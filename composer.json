@@ -19,7 +19,7 @@
     }
   ],
   "support": {
-    "email": "info@bit3.de",
+    "email": "info@c-c-a.org",
     "issues": "https://github.com/contao-community-alliance/dependency-container/issues",
     "wiki": "https://github.com/contao-community-alliance/dependency-container/wiki",
     "irc": "irc://irc.freenode.org/contao.dev",
@@ -32,7 +32,7 @@
     "pimple/pimple": "~1.0"
   },
   "require-dev": {
-    "phpcq/all-tasks": "~1.0"
+    "phpcq/all-tasks": "~1.1"
   },
   "replace": {
     "contao-legacy/dependency-container": "self.version",
