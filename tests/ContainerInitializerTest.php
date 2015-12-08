@@ -100,4 +100,49 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\FrontendUser', $GLOBALS['container']['user']);
     }
+
+    /**
+     * Test the init method.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    public function testInitCli()
+    {
+        $GLOBALS['container'] = new \Pimple();
+
+        $this->mockConfig();
+
+        define('TL_ROOT', __DIR__);
+        define('TL_MODE', 'CLI');
+        $this->getMock('BackendUser');
+
+        $initializer = $this->getMock('DependencyInjection\Container\ContainerInitializer', array('getActiveModules'));
+        $initializer->expects($this->any())
+            ->method('getActiveModules')
+            ->will($this->returnValue(array()));
+        /** @var ContainerInitializer $initializer */
+        $initializer->init();
+
+        $this->assertTrue(isset($GLOBALS['container']['config']));
+        $this->assertTrue(isset($GLOBALS['container']['environment']));
+        $this->assertTrue(isset($GLOBALS['container']['database.connection']));
+        $this->assertTrue(isset($GLOBALS['container']['input']));
+        $this->assertTrue(isset($GLOBALS['container']['user']));
+        $this->assertTrue(isset($GLOBALS['container']['session']));
+        $this->assertTrue(isset($GLOBALS['container']['page-provider']));
+
+        $this->assertEquals(
+            0,
+            array_search(
+                array('DependencyInjection\Container\PageProvider', 'setPage'),
+                $GLOBALS['TL_HOOKS']['getPageLayout']
+            ),
+            'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
+        );
+
+        $this->assertInstanceOf('\BackendUser', $GLOBALS['container']['user']);
+    }
 }

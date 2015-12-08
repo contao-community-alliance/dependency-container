@@ -257,7 +257,7 @@ class ContainerInitializer
                 throw new \RuntimeException('Contao Database is not properly configured.');
             }
 
-            if (TL_MODE == 'BE') {
+            if ((TL_MODE == 'BE') || (TL_MODE == 'CLI')) {
                 return call_user_func($initializer->getSingleton('\\BackendUser'));
             } elseif (TL_MODE == 'FE') {
                 return call_user_func($initializer->getSingleton('\\FrontendUser'));
