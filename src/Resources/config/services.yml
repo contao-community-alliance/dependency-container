@@ -1,0 +1,4 @@
+services:
+    contao_community_alliance.legacy_dic:
+        class: DependencyInjection\Container\LegacyDependencyInjectionContainer
+        arguments: ["@contao.framework"]
