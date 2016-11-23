@@ -51,7 +51,7 @@
   "extra": {
     "contao": {
       "sources": {
-        "contao": "system/modules/dependency-container"
+        "src/Resources/contao": "system/modules/dependency-container"
       }
     },
     "branch-alias": {
