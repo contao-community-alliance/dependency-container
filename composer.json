@@ -39,14 +39,14 @@
     "bit3/contao-dependency-container": "self.version"
   },
   "autoload": {
-    "psr-0": {
-      "DependencyInjection\\Container": "src/"
+    "psr-4": {
+      "DependencyInjection\\Container\\": "src/"
     }
   },
   "extra": {
     "contao": {
       "sources": {
-        "contao": "system/modules/dependency-container"
+        "src/Resources/contao": "system/modules/dependency-container"
       }
     },
     "branch-alias": {
