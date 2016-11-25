@@ -26,9 +26,9 @@
     "source": "https://github.com/contao-community-alliance/dependency-container"
   },
   "require": {
-    "php": ">=5.3",
-    "contao/core": ">=3.2,<3.6-dev",
-    "contao-community-alliance/composer-plugin": "~2.0",
+    "php": ">=5.4",
+    "contao/core-bundle":"~3.5 || ~4.3",
+    "contao-community-alliance/composer-plugin":"^2.4.1 || ~3.0",
     "pimple/pimple": "~1.0"
   },
   "require-dev": {
