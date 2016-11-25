@@ -37,6 +37,22 @@ if (
     exit(1);
 }
 
+// This is the hack to mimic the Contao auto loader.
+spl_autoload_register(
+    function ($class) {
+        if (substr($class, 0, 7) === 'Contao\\') {
+            return null;
+        }
+        $result = class_exists('Contao\\' . $class);
+
+        if ($result) {
+            class_alias('Contao\\' . $class, $class);
+        }
+
+        return $result;
+    }
+);
+
 $GLOBALS['TL_HOOKS'] = array(
     'getPageLayout' => array(
         array('Another', 'hook')
