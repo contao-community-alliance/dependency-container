@@ -63,12 +63,8 @@ possible and fall back to the legacy instantiation then.
 ```diff
 + // Check for Contao 4 dependency injection container.
 + if ($symfony = $container['contao4']) {
-+     $container['base-service'] = $container->share(
-+          function ($container) { return $symfony->get('vendor.base_service'); }
-+     );
-+     $container['consuming-service'] = $container->share(
-+          function ($container) { return $symfony->get('vendor.consuming_service'); }
-+     );
++     $container['base-service']      = $container->provideSymfonyService('vendor.base_service');
++     $container['consuming-service'] = $container->provideSymfonyService('vendor.consuming_service');
 +
 +     return;
 + }
