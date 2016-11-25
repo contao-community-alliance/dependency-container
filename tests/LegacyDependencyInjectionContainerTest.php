@@ -39,7 +39,7 @@ class LegacyDependencyInjectionContainerTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Only available in Contao 4');
         }
 
-        $framework = $this->getMock(ContaoFrameworkInterface::class);
+        $framework = $this->getMock('Contao\CoreBundle\Framework\ContaoFrameworkInterface');
         $framework->expects($this->once())->method('initialize');
 
         $legacyContainer = new LegacyDependencyInjectionContainer($framework);
