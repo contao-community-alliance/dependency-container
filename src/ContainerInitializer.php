@@ -21,6 +21,13 @@
 
 namespace DependencyInjection\Container;
 
+use Contao\Config;
+use Contao\Database;
+use Contao\ModuleLoader;
+use Contao\System;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
+
 /**
  * The initialization handler class for the dependency container.
  */
@@ -29,7 +36,7 @@ class ContainerInitializer
     /**
      * Get the currently defined global container or create it if no container is present so far.
      *
-     * @return \Pimple
+     * @return PimpleGate
      *
      * @throws \RuntimeException When an incompatible DIC is encountered.
      *
@@ -39,19 +46,47 @@ class ContainerInitializer
     protected function getContainer()
     {
         if (!isset($GLOBALS['container'])) {
-            $GLOBALS['container'] = new \Pimple();
+            $GLOBALS['container'] = new PimpleGate([], $this->getSymfonyContainer());
         }
         $container = $GLOBALS['container'];
 
-        if (!$container instanceof \Pimple) {
+        if (!$container instanceof PimpleGate) {
             throw new \RuntimeException(
-                'Dependency container is incompatible class. Expected \Pimple but found ' .
-                get_class($container),
+                'Dependency container is incompatible class. Expected PimpleGate but found ' . get_class($container),
                 1
             );
         }
 
         return $container;
+    }
+
+    /**
+     * Determine the symfony container.
+     *
+     * @return ContainerInterface|null
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function getSymfonyContainer()
+    {
+        // 1. Preferred way in contao 4.0+
+        if (method_exists('Contao\System', 'getContainer')
+            && ($container = System::getContainer()) instanceof ContainerInterface
+        ) {
+            return $container;
+        }
+
+        // 2. Fallback to fetch from kernel.
+        if (isset($GLOBALS['kernel'])
+            && $GLOBALS['kernel'] instanceof KernelInterface
+            && ($container = $GLOBALS['kernel']->getContainer()) instanceof ContainerInterface
+        ) {
+            return $container;
+        }
+
+        // 3. Nothing worked out, return no container.
+        return null;
     }
 
     /**
@@ -75,7 +110,7 @@ class ContainerInitializer
     /**
      * Call the initialization hooks.
      *
-     * @param \Pimple $container The container that got initialized.
+     * @param PimpleGate $container The container that got initialized.
      *
      * @return void
      *
@@ -84,7 +119,7 @@ class ContainerInitializer
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function callHooks($container)
+    protected function callHooks(PimpleGate $container)
     {
         if (isset($GLOBALS['TL_HOOKS']['initializeDependencyContainer']) &&
             is_array($GLOBALS['TL_HOOKS']['initializeDependencyContainer'])
@@ -95,7 +130,7 @@ class ContainerInitializer
                     if (!$class->hasMethod($callback[1])) {
                         if ($class->hasMethod('__call')) {
                             $method = $class->getMethod('__call');
-                            $args   = array($callback[1], $container);
+                            $args   = [$callback[1], $container];
                         } else {
                             throw new \InvalidArgumentException(
                                 sprintf('No such Method %s::%s', $callback[0], $callback[1])
@@ -103,7 +138,7 @@ class ContainerInitializer
                         }
                     } else {
                         $method = $class->getMethod($callback[1]);
-                        $args   = array($container);
+                        $args   = [$container];
                     }
                     $object = null;
 
@@ -120,26 +155,6 @@ class ContainerInitializer
     }
 
     /**
-     * Autoload the Contao class and alias if needed.
-     *
-     * @param string $className The class name.
-     *
-     * @return void
-     */
-    // @codingStandardsIgnoreStart - Ignore false positive for thrown exception.
-    public function ensureClassIsLoaded($className)
-    {
-        if (!class_exists($className)) {
-            $realClassName = 'Contao' . $className;
-            if (!class_exists($realClassName)) {
-                throw new \RuntimeException('Could not load class ' . $realClassName);
-            }
-            class_alias($realClassName, $className);
-        }
-    }
-    // @codingStandardsIgnoreEnd
-
-    /**
      * Create closure to autoload the class and return the instance.
      *
      * @param string $className The class name to load.
@@ -152,42 +167,14 @@ class ContainerInitializer
     {
         $initializer = $this;
         return function () use ($initializer, $className) {
-            $initializer->ensureClassIsLoaded($className);
+            if (!class_exists($className)) {
+                throw new \RuntimeException('Could not load class ' . $className);
+            }
 
             $object = $initializer->getInstanceOf($className);
 
             return $object;
         };
-    }
-
-    /**
-     * Create the closure to provide the Contao Config.
-     *
-     * @return \Closure
-     */
-    protected function getConfigProvider()
-    {
-        return $this->getSingleton('\\Config');
-    }
-
-    /**
-     * Create the closure to provide the Contao Environment.
-     *
-     * @return \Closure
-     */
-    protected function getEnvironmentProvider()
-    {
-        return $this->getSingleton('\\Environment');
-    }
-
-    /**
-     * Create the closure to provide the Contao Session.
-     *
-     * @return \Closure
-     */
-    protected function getSessionProvider()
-    {
-        return $this->getSingleton('\\Session');
     }
 
     /**
@@ -213,20 +200,10 @@ class ContainerInitializer
                 throw new \RuntimeException('Contao Database is not properly configured.');
             }
 
-            return \Database::getInstance();
+            return Database::getInstance();
         };
     }
     // @codingStandardsIgnoreEnd
-
-    /**
-     * Create the closure to provide the Contao Config.
-     *
-     * @return \Closure
-     */
-    protected function getInputProvider()
-    {
-        return $this->getSingleton('\\Input');
-    }
 
     /**
      * Create the closure to provide the Contao Config.
@@ -239,8 +216,7 @@ class ContainerInitializer
      */
     protected function getUserProvider()
     {
-        $initializer = $this;
-        return function ($container) use ($initializer) {
+        return function ($container) {
             if (!defined('TL_MODE')) {
                 throw new \RuntimeException(
                     'TL_MODE not defined.',
@@ -248,7 +224,7 @@ class ContainerInitializer
                 );
             }
 
-            /** @var \Config $config */
+            /** @var Config $config */
             $config = $container['config'];
             // Work around the fact that \Contao\Database::getInstance() always creates an instance,
             // even when no driver is configured (Database and Config are being imported into the user class and there-
@@ -258,9 +234,9 @@ class ContainerInitializer
             }
 
             if ((TL_MODE == 'BE') || (TL_MODE == 'CLI')) {
-                return call_user_func($initializer->getSingleton('\\BackendUser'));
+                return call_user_func($this->getSingleton('\\Contao\\BackendUser'));
             } elseif (TL_MODE == 'FE') {
-                return call_user_func($initializer->getSingleton('\\FrontendUser'));
+                return call_user_func($this->getSingleton('\\Contao\\FrontendUser'));
             }
 
             throw new \RuntimeException(
@@ -273,41 +249,41 @@ class ContainerInitializer
     /**
      * Add the Contao Config Singleton to the DIC.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    private function provideConfig(\Pimple $container)
+    private function provideConfig(PimpleGate $container)
     {
         if (!isset($container['config'])) {
-            $container['config'] = $container->share($this->getConfigProvider());
+            $container['config'] = $container->share($this->getSingleton('\\Contao\\Config'));
         }
     }
 
     /**
      * Add the Contao Environment Singleton to the DIC.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      */
-    private function provideEnvironment(\Pimple $container)
+    private function provideEnvironment(PimpleGate $container)
     {
         if (!isset($container['environment'])) {
-            $container['environment'] = $container->share($this->getEnvironmentProvider());
+            $container['environment'] = $container->share($this->getSingleton('\\Contao\\Environment'));
         }
     }
 
     /**
      * Add the Contao Database Singleton to the DIC.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      */
-    private function provideDatabase(\Pimple $container)
+    private function provideDatabase(PimpleGate $container)
     {
         if (!isset($container['database.connection'])) {
             $container['database.connection'] = $container->share($this->getDatabaseProvider());
@@ -317,25 +293,25 @@ class ContainerInitializer
     /**
      * Add the Contao Input Singleton to the DIC.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      */
-    private function provideInput(\Pimple $container)
+    private function provideInput(PimpleGate $container)
     {
         if (!isset($container['input'])) {
-            $container['input'] = $container->share($this->getInputProvider());
+            $container['input'] = $container->share($this->getSingleton('\\Contao\\Input'));
         }
     }
 
     /**
      * Add the Contao User Singleton to the DIC.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      */
-    private function provideUser(\Pimple $container)
+    private function provideUser(PimpleGate $container)
     {
         if (!isset($container['user'])) {
             $container['user'] = $container->share($this->getUserProvider());
@@ -345,31 +321,29 @@ class ContainerInitializer
     /**
      * Add the Contao Session Singleton to the DIC.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    private function provideSession(\Pimple $container)
+    private function provideSession(PimpleGate $container)
     {
         if (!isset($container['session'])) {
-            $container['session'] = $container->share($this->getSessionProvider());
+            $container['session'] = $container->share($this->getSingleton('\\Contao\\Session'));
         }
 
         if (!isset($container['page-provider'])) {
             $container['page-provider'] = new PageProvider();
 
             if (isset($GLOBALS['TL_HOOKS']['getPageLayout']) && is_array($GLOBALS['TL_HOOKS']['getPageLayout'])) {
-                $GLOBALS['TL_HOOKS']['getPageLayout'] = array_merge(
-                    array(array('DependencyInjection\Container\PageProvider', 'setPage')),
-                    $GLOBALS['TL_HOOKS']['getPageLayout']
+                array_unshift(
+                    $GLOBALS['TL_HOOKS']['getPageLayout'],
+                    ['DependencyInjection\Container\PageProvider', 'setPage']
                 );
             } else {
-                $GLOBALS['TL_HOOKS']['getPageLayout'] = array(
-                    array('DependencyInjection\Container\PageProvider', 'setPage')
-                );
+                $GLOBALS['TL_HOOKS']['getPageLayout'] = [['DependencyInjection\Container\PageProvider', 'setPage']];
             }
         }
     }
@@ -377,11 +351,11 @@ class ContainerInitializer
     /**
      * Add the Contao singletons to the DIC.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      */
-    protected function provideSingletons(\Pimple $container)
+    protected function provideSingletons(PimpleGate $container)
     {
         $this->provideConfig($container);
         $this->provideEnvironment($container);
@@ -392,41 +366,42 @@ class ContainerInitializer
     }
 
     /**
-     * Return the active modules as array.
-     *
-     * @return string[] An array of active modules
-     */
-    protected function getActiveModules()
-    {
-        return \ModuleLoader::getActive();
-    }
-
-    /**
      * Load all services files.
      *
-     * @param \Pimple $container The DIC to populate.
+     * @param PimpleGate $container The DIC to populate.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function loadServiceConfigurations($container)
+    private function loadServiceConfigurations(PimpleGate $container)
     {
+        $paths = $container->isContao4()
+            ? $container->getSymfonyParameter('contao_community_alliance.legacy_dic')
+            : $this->getActiveModulePaths();
+
         // include the module services configurations
-        foreach ($this->getActiveModules() as $module) {
-            $file = TL_ROOT . '/system/modules/' . $module . '/config/services.php';
-
-            if (file_exists($file)) {
-                include $file;
-            }
-        }
-
-        // include the local services configuration
-        $file = TL_ROOT . '/system/config/services.php';
-
-        if (file_exists($file)) {
+        foreach ($paths as $file) {
             include $file;
         }
+    }
+
+    /**
+     * Return the active modules as array.
+     *
+     * @return string[] An array of active modules
+     */
+    protected function getActiveModulePaths()
+    {
+        $paths = array_map(function ($module) {
+            return TL_ROOT . '/system/modules/' . $module . '/config/services.php';
+        }, ModuleLoader::getActive());
+        // include the local services configuration
+        $paths[] = TL_ROOT . '/system/config/services.php';
+
+        return array_filter($paths, function ($path) {
+            return is_readable($path);
+        });
     }
 
     /**

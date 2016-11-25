@@ -21,7 +21,10 @@
 
 namespace DependencyInjection\Container\Test;
 
+use Contao\System;
 use DependencyInjection\Container\ContainerInitializer;
+use DependencyInjection\Container\PimpleGate;
+use DependencyInjection\Container\Test\Mocks\Contao\Config;
 
 /**
  * Test the class ContainerInitializer.
@@ -29,31 +32,107 @@ use DependencyInjection\Container\ContainerInitializer;
 class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Mock the config class.
-     *
-     * @return void
+     * {@inheritDoc}
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function mockConfig()
+    protected function tearDown()
     {
-        $GLOBALS['container'] = new \Pimple();
+        parent::tearDown();
+        unset($GLOBALS['container']);
+    }
 
-        $stub = $this->getMock(
-            'Config',
-            array(
-                'getInstance',
-                'get'
-            )
+    /**
+     * Test that an exception is thrown when the container is invalid.
+     *
+     * @return void
+     *
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage Dependency container is incompatible class. Expected PimpleGate but found DateTime
+     */
+    public function testBailsForInvalidContainer()
+    {
+        $GLOBALS['container'] = new \DateTime();
+
+        $initializer = new ContainerInitializer();
+
+        $initializer->init();
+    }
+
+    /**
+     * Test that the symfony container is fetched.
+     *
+     * @return void
+     */
+    public function testObtainsSymfonyContainerFromSystemClass()
+    {
+        if (!interface_exists('Contao\CoreBundle\Framework\ContaoFrameworkInterface')) {
+            $this->markTestSkipped('Only available in Contao 4');
+        }
+
+        System::setContainer(
+            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
         );
 
-        $stub->expects($this->any())
-            ->method('get')
-            ->with('dbDriver')
-            ->will($this->returnValue('mySQL'));
+        $container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('contao_community_alliance.legacy_dic')
+            ->willReturn([]);
 
-        $GLOBALS['container']['config'] = $stub;
+        $initializer = $this->mockInitializer();
+
+        $initializer->init();
+
+        $this->assertSame($container, $GLOBALS['container']->getContainer());
+        $this->assertSame($container, $GLOBALS['container']['symfony']);
+    }
+
+    /**
+     * Test that the symfony container is fetched.
+     *
+     * @return void
+     */
+    public function testObtainsSymfonyContainerFromKernel()
+    {
+        if (!interface_exists('Contao\CoreBundle\Framework\ContaoFrameworkInterface')) {
+            $this->markTestSkipped('Only available in Contao 4');
+        }
+
+        $GLOBALS['kernel'] = $this->getMockForAbstractClass('Symfony\Component\HttpKernel\KernelInterface');
+
+        $GLOBALS['kernel']->expects($this->once())->method('getContainer')->willReturn(
+            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
+        );
+
+        $container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('contao_community_alliance.legacy_dic')
+            ->willReturn([]);
+
+        $initializer = $this->mockInitializer();
+
+        $initializer->init();
+
+        $this->assertSame($container, $GLOBALS['container']->getContainer());
+        $this->assertSame($container, $GLOBALS['container']['symfony']);
+    }
+
+    /**
+     * Test that the symfony container is not fetched when none is available.
+     *
+     * @return void
+     */
+    public function testDoesNotFindSymfonyContainerWhenNoneAvailable()
+    {
+        $initializer = $this->mockInitializer();
+
+        $initializer->init();
+
+        $this->assertNull($GLOBALS['container']->getContainer());
+        $this->assertNull($GLOBALS['container']['symfony']);
     }
 
     /**
@@ -66,26 +145,24 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInit()
     {
-        $GLOBALS['container'] = new \Pimple();
-
-        $this->mockConfig();
+        $GLOBALS['container'] = new PimpleGate();
 
         define('TL_ROOT', __DIR__);
         define('TL_MODE', 'FE');
-        $this->getMock('FrontendUser');
 
-        $initializer = $this->getMock('DependencyInjection\Container\ContainerInitializer', array('getActiveModules'));
-        $initializer->expects($this->any())
-            ->method('getActiveModules')
-            ->will($this->returnValue(array()));
+        $initializer = $this->mockInitializer([
+            'Contao\Config'       => $config = new Config(['dbDriver' => 'mySQL']),
+            'Contao\FrontendUser' => $user = new \stdClass()
+        ]);
+
         /** @var ContainerInitializer $initializer */
         $initializer->init();
 
-        $this->assertTrue(isset($GLOBALS['container']['config']));
+        $this->assertSame($config, $GLOBALS['container']['config']);
         $this->assertTrue(isset($GLOBALS['container']['environment']));
         $this->assertTrue(isset($GLOBALS['container']['database.connection']));
         $this->assertTrue(isset($GLOBALS['container']['input']));
-        $this->assertTrue(isset($GLOBALS['container']['user']));
+        $this->assertSame($user, $GLOBALS['container']['user']);
         $this->assertTrue(isset($GLOBALS['container']['session']));
         $this->assertTrue(isset($GLOBALS['container']['page-provider']));
 
@@ -97,8 +174,6 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
             ),
             'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
         );
-
-        $this->assertInstanceOf('\FrontendUser', $GLOBALS['container']['user']);
     }
 
     /**
@@ -111,26 +186,24 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInitCli()
     {
-        $GLOBALS['container'] = new \Pimple();
-
-        $this->mockConfig();
+        $GLOBALS['container'] = new PimpleGate();
 
         define('TL_ROOT', __DIR__);
         define('TL_MODE', 'CLI');
-        $this->getMock('BackendUser');
 
-        $initializer = $this->getMock('DependencyInjection\Container\ContainerInitializer', array('getActiveModules'));
-        $initializer->expects($this->any())
-            ->method('getActiveModules')
-            ->will($this->returnValue(array()));
+        $initializer = $this->mockInitializer([
+            'Contao\Config'      => $config = new Config(['dbDriver' => 'mySQL']),
+            'Contao\BackendUser' => $user   = new \stdClass()
+        ]);
+
         /** @var ContainerInitializer $initializer */
         $initializer->init();
 
-        $this->assertTrue(isset($GLOBALS['container']['config']));
+        $this->assertSame($config, $GLOBALS['container']['config']);
         $this->assertTrue(isset($GLOBALS['container']['environment']));
         $this->assertTrue(isset($GLOBALS['container']['database.connection']));
         $this->assertTrue(isset($GLOBALS['container']['input']));
-        $this->assertTrue(isset($GLOBALS['container']['user']));
+        $this->assertSame($user, $GLOBALS['container']['user']);
         $this->assertTrue(isset($GLOBALS['container']['session']));
         $this->assertTrue(isset($GLOBALS['container']['page-provider']));
 
@@ -142,7 +215,40 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
             ),
             'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
         );
+    }
 
-        $this->assertInstanceOf('\BackendUser', $GLOBALS['container']['user']);
+    /**
+     * Mock an initializer with the passed singletons
+     *
+     * @param array $singletons
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|ContainerInitializer
+     */
+    private function mockInitializer($singletons = [])
+    {
+        $initializer = $this->getMock(
+            'DependencyInjection\Container\ContainerInitializer',
+            ['getActiveModulePaths', 'getInstanceOf']
+        );
+        $initializer->expects($this->any())
+            ->method('getActiveModulePaths')
+            ->willReturn([]);
+
+        if (empty($singletons)) {
+            $singletons = ['Contao\Config' => $config = new Config(['dbDriver' => 'mySQL'])];
+        }
+
+        $initializer->expects($this->any())
+            ->method('getInstanceOf')
+            ->willReturnCallback(function ($className) use ($singletons) {
+                $singleton = trim($className, '\\');
+                if (!isset($singletons[$singleton])) {
+                    throw new \RuntimeException('Not mocked! ' . $className);
+                }
+
+                return $singletons[$singleton];
+            });
+
+        return $initializer;
     }
 }
