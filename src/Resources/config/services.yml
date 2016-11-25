@@ -1,7 +1,7 @@
 services:
   legacy_container:
     class: Pimple
-    factory: ['@pimple_container.provider', 'getContainer']
+    factory: ['@legacy_container.provider', 'getContainer']
 
   legacy_container.provider:
     class: DependencyInjection\Container\DependencyInjection\LegacyContainerProvider
