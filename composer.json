@@ -58,6 +58,7 @@
         "src/Resources/contao": "system/modules/dependency-container"
       }
     },
+    "contao-manager-plugin": "DependencyInjection\\Container\\ContaoManager\\Plugin",
     "branch-alias": {
       "dev-release/2.0.0": "2.0.x-dev"
     }
