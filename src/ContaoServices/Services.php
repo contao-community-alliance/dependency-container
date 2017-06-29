@@ -142,6 +142,8 @@ class Services
      * Create the page provider service for provide the current active page model.
      *
      * @return PageProvider
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function createPageProviderService()
     {
