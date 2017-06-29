@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2013-2016 Contao Community Alliance <https://c-c-a.org>
+ * (c) 2013-2017 Contao Community Alliance <https://c-c-a.org>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan@lins.io>
- * @copyright  2013-2016 Contao Community Alliance <https://c-c-a.org>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance <https://c-c-a.org>
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0
  * @link       https://github.com/contao-community-alliance/dependency-container
  * @filesource
@@ -21,8 +22,6 @@
 
 namespace DependencyInjection\Container;
 
-use Contao\Config;
-use Contao\Database;
 use Contao\ModuleLoader;
 use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -155,217 +154,6 @@ class ContainerInitializer
     }
 
     /**
-     * Create closure to autoload the class and return the instance.
-     *
-     * @param string $className The class name to load.
-     *
-     * @return \Closure
-     *
-     * @internal This will become protected or private when PHP 5.3 support get's dropped.
-     */
-    public function getSingleton($className)
-    {
-        $initializer = $this;
-        return function () use ($initializer, $className) {
-            if (!class_exists($className)) {
-                throw new \RuntimeException('Could not load class ' . $className);
-            }
-
-            $object = $initializer->getInstanceOf($className);
-
-            return $object;
-        };
-    }
-
-    /**
-     * Create the closure to provide the Contao Config.
-     *
-     * @return \Closure
-     */
-    // @codingStandardsIgnoreStart - Ignore false positive for thrown exception.
-    protected function getDatabaseProvider()
-    {
-        return function ($container) {
-            /** @var \Config $config */
-            $config = $container['config'];
-
-            // Ensure the user is loaded before the database class.
-            if (empty($container['user'])) {
-                throw new \RuntimeException('User has not been preloaded.');
-            }
-
-            // Work around the fact that \Contao\Database::getInstance() always creates an instance,
-            // even when no driver is configured.
-            if (!$config->get('dbDriver')) {
-                throw new \RuntimeException('Contao Database is not properly configured.');
-            }
-
-            return Database::getInstance();
-        };
-    }
-    // @codingStandardsIgnoreEnd
-
-    /**
-     * Create the closure to provide the Contao Config.
-     *
-     * @return \Closure
-     *
-     * @throws \RuntimeException When an unknown TL_MODE is encountered.
-     *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariables)
-     */
-    protected function getUserProvider()
-    {
-        return function ($container) {
-            if (!defined('TL_MODE')) {
-                throw new \RuntimeException(
-                    'TL_MODE not defined.',
-                    1
-                );
-            }
-
-            /** @var Config $config */
-            $config = $container['config'];
-            // Work around the fact that \Contao\Database::getInstance() always creates an instance,
-            // even when no driver is configured (Database and Config are being imported into the user class and there-
-            // fore causing an fatal error).
-            if (!$config->get('dbDriver')) {
-                throw new \RuntimeException('Contao Database is not properly configured.');
-            }
-
-            if ((TL_MODE == 'BE') || (TL_MODE == 'CLI')) {
-                return call_user_func($this->getSingleton('\\Contao\\BackendUser'));
-            } elseif (TL_MODE == 'FE') {
-                return call_user_func($this->getSingleton('\\Contao\\FrontendUser'));
-            }
-
-            throw new \RuntimeException(
-                'Unknown TL_MODE encountered "' . var_export(constant('TL_MODE'), true) . '"',
-                1
-            );
-        };
-    }
-
-    /**
-     * Add the Contao Config Singleton to the DIC.
-     *
-     * @param PimpleGate $container The DIC to populate.
-     *
-     * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     */
-    private function provideConfig(PimpleGate $container)
-    {
-        if (!isset($container['config'])) {
-            $container['config'] = $container->share($this->getSingleton('\\Contao\\Config'));
-        }
-    }
-
-    /**
-     * Add the Contao Environment Singleton to the DIC.
-     *
-     * @param PimpleGate $container The DIC to populate.
-     *
-     * @return void
-     */
-    private function provideEnvironment(PimpleGate $container)
-    {
-        if (!isset($container['environment'])) {
-            $container['environment'] = $container->share($this->getSingleton('\\Contao\\Environment'));
-        }
-    }
-
-    /**
-     * Add the Contao Database Singleton to the DIC.
-     *
-     * @param PimpleGate $container The DIC to populate.
-     *
-     * @return void
-     */
-    private function provideDatabase(PimpleGate $container)
-    {
-        if (!isset($container['database.connection'])) {
-            $container['database.connection'] = $container->share($this->getDatabaseProvider());
-        }
-    }
-
-    /**
-     * Add the Contao Input Singleton to the DIC.
-     *
-     * @param PimpleGate $container The DIC to populate.
-     *
-     * @return void
-     */
-    private function provideInput(PimpleGate $container)
-    {
-        if (!isset($container['input'])) {
-            $container['input'] = $container->share($this->getSingleton('\\Contao\\Input'));
-        }
-    }
-
-    /**
-     * Add the Contao User Singleton to the DIC.
-     *
-     * @param PimpleGate $container The DIC to populate.
-     *
-     * @return void
-     */
-    private function provideUser(PimpleGate $container)
-    {
-        if (!isset($container['user'])) {
-            $container['user'] = $container->share($this->getUserProvider());
-        }
-    }
-
-    /**
-     * Add the Contao Session Singleton to the DIC.
-     *
-     * @param PimpleGate $container The DIC to populate.
-     *
-     * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    private function provideSession(PimpleGate $container)
-    {
-        if (!isset($container['session'])) {
-            $container['session'] = $container->share($this->getSingleton('\\Contao\\Session'));
-        }
-
-        if (!isset($container['page-provider'])) {
-            $container['page-provider'] = new PageProvider();
-
-            if (isset($GLOBALS['TL_HOOKS']['getPageLayout']) && is_array($GLOBALS['TL_HOOKS']['getPageLayout'])) {
-                array_unshift(
-                    $GLOBALS['TL_HOOKS']['getPageLayout'],
-                    ['DependencyInjection\Container\PageProvider', 'setPage']
-                );
-            } else {
-                $GLOBALS['TL_HOOKS']['getPageLayout'] = [['DependencyInjection\Container\PageProvider', 'setPage']];
-            }
-        }
-    }
-
-    /**
-     * Add the Contao singletons to the DIC.
-     *
-     * @param PimpleGate $container The DIC to populate.
-     *
-     * @return void
-     */
-    protected function provideSingletons(PimpleGate $container)
-    {
-        $this->provideConfig($container);
-        $this->provideEnvironment($container);
-        $this->provideDatabase($container);
-        $this->provideInput($container);
-        $this->provideUser($container);
-        $this->provideSession($container);
-    }
-
-    /**
      * Load all services files.
      *
      * @param PimpleGate $container The DIC to populate.
@@ -413,9 +201,6 @@ class ContainerInitializer
     {
         // Retrieve the default service container.
         $container = $this->getContainer();
-
-        // Provide the Contao singletons first.
-        $this->provideSingletons($container);
 
         // Now load the additional service configurations.
         $this->loadServiceConfigurations($container);

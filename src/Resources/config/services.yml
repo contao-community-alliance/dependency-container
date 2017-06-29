@@ -2,3 +2,25 @@ services:
     contao_community_alliance.legacy_dic:
         class: DependencyInjection\Container\LegacyDependencyInjectionContainer
         arguments: ["@contao.framework"]
+
+    contao.config:
+        class: DependencyInjection\Container\ContaoServices\Services
+        factory: [DependencyInjection\Container\ContaoServices\Services, createConfigService]
+    contao.environment:
+        class: DependencyInjection\Container\ContaoServices\Services
+        factory: [DependencyInjection\Container\ContaoServices\Services, createEnvironmentService]
+    contao.user:
+        class: DependencyInjection\Container\ContaoServices\Services
+        factory: [DependencyInjection\Container\ContaoServices\Services, createUserService]
+    contao.database.connection:
+        class: DependencyInjection\Container\ContaoServices\Services
+        factory: [DependencyInjection\Container\ContaoServices\Services, createDatabaseConnectionService]
+    contao.input:
+        class: DependencyInjection\Container\ContaoServices\Services
+        factory: [DependencyInjection\Container\ContaoServices\Services, createInputService]
+    contao.session:
+        class: DependencyInjection\Container\ContaoServices\Services
+        factory: [DependencyInjection\Container\ContaoServices\Services, createSessionService]
+    contao.page-provider:
+        class: DependencyInjection\Container\ContaoServices\Services
+        factory: [DependencyInjection\Container\ContaoServices\Services, createPageProviderService]
