@@ -3,6 +3,14 @@ Dependency Injection Container for Contao Open Source CMS
 
 This DI Container based on [Pimple](http://pimple.sensiolabs.org).
 
+
+***NOTE on Contao 4:*** This is obsolete in Contao 4 - you should use the symfony container in Contao 4.
+
+This extension keeps compatibility for easing migration to Contao 4 - however, you should
+change your code to register your services using both registration ways.
+
+For a howto of how to migrate to Contao 4, please refer to the [UPGRADING-TO-CONTAO4.md](UPGRADING-TO-CONTAO4.md)
+
 Register parameters and services
 --------------------------------
 
