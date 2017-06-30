@@ -21,6 +21,7 @@
 namespace DependencyInjection\Container\ContaoManager;
 
 use Contao\CoreBundle\ContaoCoreBundle;
+use Contao\ManagerBundle\ContaoManagerBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
@@ -38,7 +39,12 @@ class Plugin implements BundlePluginInterface
     {
         return [
             BundleConfig::create(CcaDependencyInjectionBundle::class)
-                ->setLoadAfter([ContaoCoreBundle::class]),
+                ->setLoadAfter(
+                    [
+                        ContaoCoreBundle::class,
+                        ContaoManagerBundle::class
+                    ]
+                ),
         ];
     }
 }
