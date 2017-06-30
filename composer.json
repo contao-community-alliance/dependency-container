@@ -35,7 +35,8 @@
     "pimple/pimple": "~1.0"
   },
   "require-dev": {
-    "phpcq/all-tasks": "~1.1"
+    "phpcq/all-tasks": "~1.1",
+    "contao/manager-bundle": "~4.4"
   },
   "replace": {
     "contao-legacy/dependency-container": "self.version",
