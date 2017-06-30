@@ -3,6 +3,9 @@ services:
         class: DependencyInjection\Container\LegacyDependencyInjectionContainer
         arguments: ["@contao.framework"]
 
+    contao_community_alliance.legacy_dic.initializer:
+        class: DependencyInjection\Container\ContainerInitializer
+
     contao.config:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: [DependencyInjection\Container\ContaoServices\Services, createConfigService]
