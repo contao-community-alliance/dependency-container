@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2013 Contao Community Alliance
+ * (c) 2017 Contao Community Alliance
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0+
  * @link       http://c-c-a.org
  * @filesource
@@ -157,23 +158,6 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
 
         /** @var ContainerInitializer $initializer */
         $initializer->init();
-
-        $this->assertSame($config, $GLOBALS['container']['config']);
-        $this->assertTrue(isset($GLOBALS['container']['environment']));
-        $this->assertTrue(isset($GLOBALS['container']['database.connection']));
-        $this->assertTrue(isset($GLOBALS['container']['input']));
-        $this->assertSame($user, $GLOBALS['container']['user']);
-        $this->assertTrue(isset($GLOBALS['container']['session']));
-        $this->assertTrue(isset($GLOBALS['container']['page-provider']));
-
-        $this->assertEquals(
-            0,
-            array_search(
-                array('DependencyInjection\Container\PageProvider', 'setPage'),
-                $GLOBALS['TL_HOOKS']['getPageLayout']
-            ),
-            'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
-        );
     }
 
     /**
@@ -198,23 +182,6 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
 
         /** @var ContainerInitializer $initializer */
         $initializer->init();
-
-        $this->assertSame($config, $GLOBALS['container']['config']);
-        $this->assertTrue(isset($GLOBALS['container']['environment']));
-        $this->assertTrue(isset($GLOBALS['container']['database.connection']));
-        $this->assertTrue(isset($GLOBALS['container']['input']));
-        $this->assertSame($user, $GLOBALS['container']['user']);
-        $this->assertTrue(isset($GLOBALS['container']['session']));
-        $this->assertTrue(isset($GLOBALS['container']['page-provider']));
-
-        $this->assertEquals(
-            0,
-            array_search(
-                array('DependencyInjection\Container\PageProvider', 'setPage'),
-                $GLOBALS['TL_HOOKS']['getPageLayout']
-            ),
-            'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
-        );
     }
 
     /**
