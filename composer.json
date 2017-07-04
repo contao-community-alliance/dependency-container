@@ -38,10 +38,6 @@
     "phpcq/all-tasks": "~1.1",
     "contao/manager-bundle": "~4.4"
   },
-  "replace": {
-    "contao-legacy/dependency-container": "<1.5",
-    "bit3/contao-dependency-container": "<1.8"
-  },
   "autoload": {
     "psr-4": {
       "DependencyInjection\\Container\\": "src/"
