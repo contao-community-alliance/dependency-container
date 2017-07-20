@@ -28,12 +28,25 @@ use Contao\FrontendUser;
 use Contao\Input;
 use Contao\Session;
 use DependencyInjection\Container\PageProvider;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 
 /**
  * The class provides services for create.
  */
 class Services
 {
+    /**
+     * The contao framework.
+     *
+     * @var ResettableContainerInterface
+     */
+    protected $container;
+
+    public function __construct(ResettableContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     /**
      * Create the config service for contao config.
      *
@@ -70,7 +83,7 @@ class Services
             );
         }
 
-        $config = $this->get('contao.config');
+        $config = $this->container->get('contao.config');
         // Work around the fact that \Contao\Database::getInstance() always creates an instance,
         // even when no driver is configured (Database and Config are being imported into the user class and there-
         // fore causing an fatal error).
@@ -103,11 +116,11 @@ class Services
     public function createDatabaseConnectionService()
     {
         // Ensure the user is loaded before the database class.
-        if (empty($this->get('contao.user'))) {
+        if (empty($this->container->get('contao.user'))) {
             throw new \RuntimeException('User has not been preloaded.');
         }
 
-        $config = $this->get('contao.config');
+        $config = $this->container->get('contao.config');
 
         // Work around the fact that \Contao\Database::getInstance() always creates an instance,
         // even when no driver is configured.
