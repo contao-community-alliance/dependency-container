@@ -1,31 +1,31 @@
 services:
-    contao_community_alliance.legacy_dic:
+    cca.legacy_dic:
         class: DependencyInjection\Container\LegacyDependencyInjectionContainer
         arguments: ["@contao.framework"]
 
-    contao_community_alliance.legacy_dic.initializer:
+    cca.legacy_dic.initializer:
         class: DependencyInjection\Container\ContainerInitializer
 
     DependencyInjection\Container\ContaoServices\Services:
         arguments: ["@service_container"]
-    contao.config:
+    cca.legacy_dic.contao_config:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: 'DependencyInjection\Container\ContaoServices\Services:createConfigService'
-    contao.environment:
+    cca.legacy_dic.contao_environment:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: 'DependencyInjection\Container\ContaoServices\Services:createEnvironmentService'
-    contao.user:
+    cca.legacy_dic.contao_user:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: 'DependencyInjection\Container\ContaoServices\Services:createUserService'
-    contao.database.connection:
+    cca.legacy_dic.contao_database_connection:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: 'DependencyInjection\Container\ContaoServices\Services:createDatabaseConnectionService'
-    contao.input:
+    cca.legacy_dic.contao_input:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: 'DependencyInjection\Container\ContaoServices\Services:createInputService'
-    contao.session:
+    cca.legacy_dic.contao_session:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: 'DependencyInjection\Container\ContaoServices\Services:createSessionService'
-    contao.page-provider:
+    cca.legacy_dic.contao_page_provider:
         class: DependencyInjection\Container\ContaoServices\Services
         factory: 'DependencyInjection\Container\ContaoServices\Services:createPageProviderService'

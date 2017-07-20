@@ -116,11 +116,11 @@ class Services
     public function createDatabaseConnectionService()
     {
         // Ensure the user is loaded before the database class.
-        if (empty($this->container->get('contao.user'))) {
+        if (empty($this->container->get('cca.legacy_dic.contao_user'))) {
             throw new \RuntimeException('User has not been preloaded.');
         }
 
-        $config = $this->container->get('contao.config');
+        $config = $this->container->get('cca.legacy_dic.contao_config');
 
         // Work around the fact that \Contao\Database::getInstance() always creates an instance,
         // even when no driver is configured.

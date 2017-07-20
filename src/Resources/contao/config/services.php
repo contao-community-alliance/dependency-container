@@ -22,10 +22,10 @@ use DependencyInjection\Container\PimpleGate;
 
 // Contao 4 code.
 /** @var PimpleGate $container */
-$container->provideSymfonyService('config', 'contao.config');
-$container->provideSymfonyService('environment', 'contao.environment');
-$container->provideSymfonyService('user', 'contao.user');
-$container->provideSymfonyService('database.connection', 'contao.database.connection');
-$container->provideSymfonyService('input', 'contao.input');
-$container->provideSymfonyService('session', 'contao.session');
-$container->provideSymfonyService('page-provider', 'contao.page-provider');
+$container->provideSymfonyService('config', 'cca.legacy_dic.contao_config');
+$container->provideSymfonyService('environment', 'cca.legacy_dic.contao_environment');
+$container->provideSymfonyService('user', 'cca.legacy_dic.contao_user');
+$container->provideSymfonyService('database.connection', 'cca.legacy_dic.contao_database_connection');
+$container->provideSymfonyService('input', 'cca.legacy_dic.contao_input');
+$container->provideSymfonyService('session', 'cca.legacy_dic.contao_session');
+$container->provideSymfonyService('page-provider', 'cca.legacy_dic.contao_page_provider');

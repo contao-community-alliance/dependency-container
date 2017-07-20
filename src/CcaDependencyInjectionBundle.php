@@ -36,7 +36,7 @@ class CcaDependencyInjectionBundle extends Bundle
         parent::build($container);
 
         // Add all resource paths to keep them handy.
-        $container->setParameter('contao_community_alliance.legacy_dic', $this->getResourcePaths($container));
+        $container->setParameter('cca.legacy_dic', $this->getResourcePaths($container));
     }
 
     /**

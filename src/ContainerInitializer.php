@@ -165,7 +165,7 @@ class ContainerInitializer
     private function loadServiceConfigurations(PimpleGate $container)
     {
         $paths = $container->isContao4()
-            ? $container->getSymfonyParameter('contao_community_alliance.legacy_dic')
+            ? $container->getSymfonyParameter('cca.legacy_dic')
             : $this->getActiveModulePaths();
 
         // include the module services configurations
