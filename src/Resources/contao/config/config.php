@@ -23,6 +23,6 @@
  * Lazy initialize dependency container.
  */
 $GLOBALS['TL_HOOKS']['initializeSystem']['dependency-container'] = array(
-    'contao_community_alliance.legacy_dic.initializer',
+    'cca.legacy_dic.initializer',
     'init'
 );

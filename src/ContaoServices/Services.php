@@ -83,7 +83,7 @@ class Services
             );
         }
 
-        $config = $this->container->get('contao.config');
+        $config = $this->container->get('cca.legacy_dic.contao_config');
         // Work around the fact that \Contao\Database::getInstance() always creates an instance,
         // even when no driver is configured (Database and Config are being imported into the user class and there-
         // fore causing an fatal error).
