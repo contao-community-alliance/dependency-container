@@ -25,7 +25,6 @@ namespace DependencyInjection\Container\Test;
 use Contao\System;
 use DependencyInjection\Container\ContainerInitializer;
 use DependencyInjection\Container\PimpleGate;
-use DependencyInjection\Container\Test\Mocks\Contao\Config;
 
 /**
  * Test the class ContainerInitializer.
@@ -177,7 +176,14 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
         );
 
         if (empty($singletons)) {
-            $singletons = ['Contao\Config' => $config = new Config(['dbDriver' => 'mySQL'])];
+            $singletons = [
+                'Contao\Config' => $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock()
+            ];
+            $config
+                ->expects($this->any())
+                ->method('get')
+                ->with('dbDatabase')
+                ->willReturn('databaseName');
         }
 
         $initializer->expects($this->any())
