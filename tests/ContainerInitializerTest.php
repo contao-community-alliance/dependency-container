@@ -79,7 +79,7 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
         $container
             ->expects($this->once())
             ->method('getParameter')
-            ->with('contao_community_alliance.legacy_dic')
+            ->with('cca.legacy_dic')
             ->willReturn([]);
 
         $initializer = $this->mockInitializer();
@@ -110,7 +110,7 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
         $container
             ->expects($this->once())
             ->method('getParameter')
-            ->with('contao_community_alliance.legacy_dic')
+            ->with('cca.legacy_dic')
             ->willReturn([]);
 
         $initializer = $this->mockInitializer();

@@ -56,6 +56,6 @@ class CcaDependencyInjectionExtensionTest extends \PHPUnit_Framework_TestCase
         $extension = new CcaDependencyInjectionExtension();
         $extension->load([], $container);
 
-        $this->assertTrue($container->has('contao_community_alliance.legacy_dic'));
+        $this->assertTrue($container->has('cca.legacy_dic'));
     }
 }

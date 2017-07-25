@@ -100,7 +100,7 @@ class CcaDependencyInjectionBundleTest extends \PHPUnit_Framework_TestCase
                 $this->tempDir . '/app/Resources/contao/config/services.php',
                 $this->tempDir . '/system/config/services.php'
             ],
-            $container->getParameter('contao_community_alliance.legacy_dic')
+            $container->getParameter('cca.legacy_dic')
         );
     }
 
@@ -122,6 +122,6 @@ class CcaDependencyInjectionBundleTest extends \PHPUnit_Framework_TestCase
 
         $bundle->build($container);
 
-        $this->assertSame([], $container->getParameter('contao_community_alliance.legacy_dic'));
+        $this->assertSame([], $container->getParameter('cca.legacy_dic'));
     }
 }
