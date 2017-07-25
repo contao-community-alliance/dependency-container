@@ -55,33 +55,6 @@ class PimpleGateTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that isContao4() returns true if symfony container is present.
-     *
-     * @return void
-     */
-    public function testIsContao4()
-    {
-        $container = new PimpleGate(
-            [],
-            $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
-        );
-
-        $this->assertTrue($container->isContao4());
-    }
-
-    /**
-     * Test that isContao4() returns false if no symfony container is present.
-     *
-     * @return void
-     */
-    public function testIsNotContao4()
-    {
-        $container = new PimpleGate();
-
-        $this->assertFalse($container->isContao4());
-    }
-
-    /**
      * Test that symfony services get delegated.
      *
      * @return void

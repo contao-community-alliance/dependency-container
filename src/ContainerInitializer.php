@@ -22,7 +22,6 @@
 
 namespace DependencyInjection\Container;
 
-use Contao\ModuleLoader;
 use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -84,8 +83,8 @@ class ContainerInitializer
             return $container;
         }
 
-        // 3. Nothing worked out, return no container.
-        return null;
+        // 3. Nothing worked out, throw Exception as this may never happen.
+        throw new \RuntimeException('Could not obtain symfony container.');
     }
 
     /**
@@ -164,32 +163,12 @@ class ContainerInitializer
      */
     private function loadServiceConfigurations(PimpleGate $container)
     {
-        $paths = $container->isContao4()
-            ? $container->getSymfonyParameter('cca.legacy_dic')
-            : $this->getActiveModulePaths();
+        $paths = $container->getSymfonyParameter('cca.legacy_dic');
 
         // include the module services configurations
         foreach ($paths as $file) {
-            include $file;
+            require_once $file;
         }
-    }
-
-    /**
-     * Return the active modules as array.
-     *
-     * @return string[] An array of active modules
-     */
-    protected function getActiveModulePaths()
-    {
-        $paths = array_map(function ($module) {
-            return TL_ROOT . '/system/modules/' . $module . '/config/services.php';
-        }, ModuleLoader::getActive());
-        // include the local services configuration
-        $paths[] = TL_ROOT . '/system/config/services.php';
-
-        return array_filter($paths, function ($path) {
-            return is_readable($path);
-        });
     }
 
     /**

@@ -118,14 +118,12 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testDoesNotFindSymfonyContainerWhenNoneAvailable()
+    public function testThrowsWhenSymfonyContainerNotAvailable()
     {
         $initializer = $this->mockInitializer();
+        $this->setExpectedException('RuntimeException', 'Could not obtain symfony container.');
 
         $initializer->init();
-
-        $this->assertNull($GLOBALS['container']->getContainer());
-        $this->assertNull($GLOBALS['container']['symfony']);
     }
 
     /**
@@ -138,39 +136,24 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInit()
     {
-        $GLOBALS['container'] = new PimpleGate();
+        System::setContainer(
+            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
+        );
 
-        define('TL_ROOT', __DIR__);
-        define('TL_MODE', 'FE');
+        $container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('cca.legacy_dic')
+            ->willReturn([__DIR__ . '/Mocks/Bundles/TestBundle/Resources/contao/config/services.php']);
 
-        $initializer = $this->mockInitializer([
-            'Contao\Config'       => $config = new Config(['dbDriver' => 'mySQL']),
-            'Contao\FrontendUser' => $user = new \stdClass()
-        ]);
+        $GLOBALS['container'] = new PimpleGate([], $container);
 
-        /** @var ContainerInitializer $initializer */
-        $initializer->init();
-    }
+        $initializer = $this->mockInitializer();
 
-    /**
-     * Test the init method.
-     *
-     * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    public function testInitCli()
-    {
-        $GLOBALS['container'] = new PimpleGate();
-
-        define('TL_ROOT', __DIR__);
-        define('TL_MODE', 'CLI');
-
-        $initializer = $this->mockInitializer([
-            'Contao\Config'      => $config = new Config(['dbDriver' => 'mySQL']),
-            'Contao\BackendUser' => $user   = new \stdClass()
-        ]);
+        $this->setExpectedException(
+            'Exception',
+            __DIR__ . '/Mocks/Bundles/TestBundle/Resources/contao/config/services.php loaded'
+        );
 
         /** @var ContainerInitializer $initializer */
         $initializer->init();
@@ -187,11 +170,8 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
     {
         $initializer = $this->getMock(
             'DependencyInjection\Container\ContainerInitializer',
-            ['getActiveModulePaths', 'getInstanceOf']
+            ['getInstanceOf']
         );
-        $initializer->expects($this->any())
-            ->method('getActiveModulePaths')
-            ->willReturn([]);
 
         if (empty($singletons)) {
             $singletons = ['Contao\Config' => $config = new Config(['dbDriver' => 'mySQL'])];

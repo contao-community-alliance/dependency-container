@@ -68,16 +68,6 @@ class PimpleGate extends \Pimple
     }
 
     /**
-     * Check if we are running in Contao 4.
-     *
-     * @return bool
-     */
-    public function isContao4()
-    {
-        return isset($this->container);
-    }
-
-    /**
      * Provide a symfony service in this container.
      *
      * @param string      $name        The name of the service.
@@ -148,14 +138,12 @@ class PimpleGate extends \Pimple
         if (isset($this->delegates[$id])) {
             throw new \LogicException(sprintf('Service %s has been delegated to symfony, cannot set.', $id));
         }
-        if ($this->isContao4()) {
-            // @codingStandardsIgnoreStart
-            @trigger_error(
-                'get service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
-                E_USER_DEPRECATED
-            );
-            // @codingStandardsIgnoreEnd
-        }
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'get service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
         $this->values[$id] = $value;
     }
@@ -177,14 +165,12 @@ class PimpleGate extends \Pimple
             return $this->getSymfonyService($this->delegates[$id]);
         }
 
-        if ($this->isContao4()) {
-            // @codingStandardsIgnoreStart
-            @trigger_error(
-                'get service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
-                E_USER_DEPRECATED
-            );
-            // @codingStandardsIgnoreEnd
-        }
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'get service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
         return parent::offsetGet($id);
     }
@@ -200,17 +186,15 @@ class PimpleGate extends \Pimple
      */
     public function offsetExists($id)
     {
-        if ($this->isContao4()) {
-            if (isset($this->delegates[$id])) {
-                return true;
-            }
-            // @codingStandardsIgnoreStart
-            @trigger_error(
-                'isset service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
-                E_USER_DEPRECATED
-            );
-            // @codingStandardsIgnoreEnd
+        if (isset($this->delegates[$id])) {
+            return true;
         }
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'isset service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
         return parent::offsetExists($id);
     }
@@ -228,17 +212,15 @@ class PimpleGate extends \Pimple
      */
     public function offsetUnset($id)
     {
-        if ($this->isContao4()) {
-            if (isset($this->delegates[$id])) {
-                throw new \LogicException(sprintf('Service %s has been delegated to symfony, cannot unset.', $id));
-            }
-            // @codingStandardsIgnoreStart
-            @trigger_error(
-                'unset service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
-                E_USER_DEPRECATED
-            );
-            // @codingStandardsIgnoreEnd
+        if (isset($this->delegates[$id])) {
+            throw new \LogicException(sprintf('Service %s has been delegated to symfony, cannot unset.', $id));
         }
+        // @codingStandardsIgnoreStart
+        @trigger_error(
+            'unset service: The pimple based DIC is deprecated, use the symfony DIC in new projects.',
+            E_USER_DEPRECATED
+        );
+        // @codingStandardsIgnoreEnd
 
         parent::offsetUnset($id);
     }

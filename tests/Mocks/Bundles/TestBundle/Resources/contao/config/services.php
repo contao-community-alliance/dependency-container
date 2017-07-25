@@ -19,3 +19,4 @@
  */
 
 // Just for the unit test.
+throw new \Exception(__FILE__ . ' loaded.');
