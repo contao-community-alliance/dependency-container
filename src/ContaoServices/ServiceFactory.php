@@ -34,7 +34,7 @@ use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 /**
  * The class provides services for create.
  */
-class Services
+class ServiceFactory
 {
     /**
      * The contao framework.
