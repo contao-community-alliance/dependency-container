@@ -29,7 +29,7 @@ use Contao\FrontendUser;
 use Contao\Input;
 use Contao\Session;
 use DependencyInjection\Container\PageProvider;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * The class provides services for create.
@@ -39,16 +39,16 @@ class ServiceFactory
     /**
      * The contao framework.
      *
-     * @var ResettableContainerInterface
+     * @var ContainerInterface
      */
     protected $container;
 
     /**
      * Create a new instance.
      *
-     * @param ResettableContainerInterface $container The container instance.
+     * @param ContainerInterface $container The container instance.
      */
-    public function __construct(ResettableContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
@@ -60,7 +60,7 @@ class ServiceFactory
      */
     public function createConfigService()
     {
-        return Config::getInstance();
+        return $this->container->get('contao.framework')->createInstance(Config::class);
     }
 
     /**
@@ -70,7 +70,7 @@ class ServiceFactory
      */
     public function createEnvironmentService()
     {
-        return Environment::getInstance();
+        return $this->container->get('contao.framework')->createInstance(Environment::class);
     }
 
     /**
@@ -82,13 +82,6 @@ class ServiceFactory
      */
     public function createUserService()
     {
-        if (!defined('TL_MODE')) {
-            throw new \RuntimeException(
-                'TL_MODE not defined.',
-                1
-            );
-        }
-
         $config = $this->container->get('cca.legacy_dic.contao_config');
         // Work around the fact that \Contao\Database::getInstance() always creates an instance,
         // even when no driver is configured (Database and Config are being imported into the user class and there-
@@ -97,44 +90,32 @@ class ServiceFactory
             throw new \RuntimeException('Contao Database is not properly configured.');
         }
 
-        if (('BE' === TL_MODE) || ('CLI' === TL_MODE)) {
-            return BackendUser::getInstance();
+        $matcher = $this->container->get('contao.routing.scope_matcher');
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+
+        // NULL request => CLI mode.
+        if ((null === $request) || $matcher->isBackendRequest($request)) {
+            return $this->container->get('contao.framework')->createInstance(BackendUser::class);
         }
 
-        if ('FE' === TL_MODE) {
-            return FrontendUser::getInstance();
+        if ($matcher->isFrontendRequest($request)) {
+            return $this->container->get('contao.framework')->createInstance(FrontendUser::class);
         }
 
-        throw new \RuntimeException(
-            'Unknown TL_MODE encountered "' . var_export(constant('TL_MODE'), true) . '"',
-            1
-        );
+        throw new \RuntimeException('Unknown TL_MODE encountered', 1);
     }
 
     /**
      * Create the database connection service for contao database.
      *
      * @return Database
-     *
-     * @throws \RuntimeException Throws an exception if user not been preloaded.
-     * @throws \RuntimeException Throws an exception if database not configured.
      */
     public function createDatabaseConnectionService()
     {
         // Ensure the user is loaded before the database class.
-        if (empty($this->container->get('cca.legacy_dic.contao_user'))) {
-            throw new \RuntimeException('User has not been preloaded.');
-        }
+        $this->container->get('cca.legacy_dic.contao_user');
 
-        $config = $this->container->get('cca.legacy_dic.contao_config');
-
-        // Work around the fact that \Contao\Database::getInstance() always creates an instance,
-        // even when no driver is configured.
-        if (!$config->get('dbDatabase')) {
-            throw new \RuntimeException('Contao Database is not properly configured.');
-        }
-
-        return Database::getInstance();
+        return $this->container->get('contao.framework')->createInstance(Database::class);
     }
 
     /**
@@ -144,7 +125,7 @@ class ServiceFactory
      */
     public function createInputService()
     {
-        return Input::getInstance();
+        return $this->container->get('contao.framework')->createInstance(Input::class);
     }
 
     /**
@@ -154,7 +135,7 @@ class ServiceFactory
      */
     public function createSessionService()
     {
-        return Session::getInstance();
+        return $this->container->get('contao.framework')->createInstance(Session::class);
     }
 
     /**

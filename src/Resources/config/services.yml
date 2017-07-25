@@ -9,23 +9,23 @@ services:
     DependencyInjection\Container\ContaoServices\ServiceFactory:
         arguments: ["@service_container"]
     cca.legacy_dic.contao_config:
-        class: DependencyInjection\Container\ContaoServices\Services
+        class: Contao\Config
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createConfigService'
     cca.legacy_dic.contao_environment:
-        class: DependencyInjection\Container\ContaoServices\Services
+        class: Contao\Environment
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createEnvironmentService'
     cca.legacy_dic.contao_user:
-        class: DependencyInjection\Container\ContaoServices\Services
+        class: Contao\User
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createUserService'
     cca.legacy_dic.contao_database_connection:
-        class: DependencyInjection\Container\ContaoServices\Services
+        class: Contao\Database
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createDatabaseConnectionService'
     cca.legacy_dic.contao_input:
-        class: DependencyInjection\Container\ContaoServices\Services
+        class: Contao\Input
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createInputService'
     cca.legacy_dic.contao_session:
-        class: DependencyInjection\Container\ContaoServices\Services
+        class: Contao\Session
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createSessionService'
     cca.legacy_dic.contao_page_provider:
-        class: DependencyInjection\Container\ContaoServices\Services
+        class: DependencyInjection\Container\PageProvider
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createPageProviderService'

@@ -52,9 +52,3 @@ spl_autoload_register(
         return $result;
     }
 );
-
-$GLOBALS['TL_HOOKS'] = array(
-    'getPageLayout' => array(
-        array('Another', 'hook')
-    ),
-);
