@@ -63,6 +63,8 @@ class ContainerInitializer
      *
      * @return ContainerInterface|null
      *
+     * @throws \RuntimeException When the container can not be obtained.
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
