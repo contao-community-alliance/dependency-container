@@ -68,10 +68,6 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      */
     public function testObtainsSymfonyContainerFromSystemClass()
     {
-        if (!interface_exists('Contao\CoreBundle\Framework\ContaoFrameworkInterface')) {
-            $this->markTestSkipped('Only available in Contao 4');
-        }
-
         System::setContainer(
             $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
         );
@@ -97,10 +93,6 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      */
     public function testObtainsSymfonyContainerFromKernel()
     {
-        if (!interface_exists('Contao\CoreBundle\Framework\ContaoFrameworkInterface')) {
-            $this->markTestSkipped('Only available in Contao 4');
-        }
-
         $GLOBALS['kernel'] = $this->getMockForAbstractClass('Symfony\Component\HttpKernel\KernelInterface');
 
         $GLOBALS['kernel']->expects($this->once())->method('getContainer')->willReturn(
