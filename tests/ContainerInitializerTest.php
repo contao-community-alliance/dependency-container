@@ -42,6 +42,9 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
     {
         parent::tearDown();
         unset($GLOBALS['container']);
+        $reflection = new \ReflectionProperty(System::class, 'objContainer');
+        $reflection->setAccessible(true);
+        $reflection->setValue(null, null);
     }
 
     /**
