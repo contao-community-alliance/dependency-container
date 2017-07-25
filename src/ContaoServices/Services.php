@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dependency-container
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @copyright  2013-2017 Contao Community Alliance <https://c-c-a.org>
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0
  * @link       https://github.com/contao-community-alliance/dependency-container
@@ -42,6 +43,11 @@ class Services
      */
     protected $container;
 
+    /**
+     * Create a new instance.
+     *
+     * @param ResettableContainerInterface $container The container instance.
+     */
     public function __construct(ResettableContainerInterface $container)
     {
         $this->container = $container;
