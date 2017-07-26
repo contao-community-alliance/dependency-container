@@ -83,7 +83,7 @@ class PimpleGate extends \Pimple
             $symfonyName = $name;
         }
 
-        if (isset($this[$name])) {
+        if (parent::offsetExists($name)) {
             throw new \LogicException(sprintf('Service %s has already been defined.', $name));
         }
 
