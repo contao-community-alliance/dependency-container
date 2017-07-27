@@ -162,6 +162,16 @@ class PimpleGate extends \Pimple
     public function offsetGet($id)
     {
         if (isset($this->delegates[$id])) {
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                sprintf(
+                    'getting service "%1$s" via pimple based DIC is deprecated, use the symfony service "%2$s"',
+                    $id,
+                    $this->delegates[$id]
+                ),
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
             return $this->getSymfonyService($this->delegates[$id]);
         }
 
