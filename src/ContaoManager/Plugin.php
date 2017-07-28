@@ -44,7 +44,8 @@ class Plugin implements BundlePluginInterface
                         ContaoCoreBundle::class,
                         ContaoManagerBundle::class
                     ]
-                ),
+                )
+                ->setReplace(['dependency-container'])
         ];
     }
 }
