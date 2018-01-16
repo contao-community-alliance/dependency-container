@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2013-2016 Contao Community Alliance <https://c-c-a.org>
+ * (c) 2013-2018 Contao Community Alliance <https://c-c-a.org>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2016 Contao Community Alliance <https://c-c-a.org>
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  2013-2018 Contao Community Alliance <https://c-c-a.org>
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0
  * @link       https://github.com/contao-community-alliance/dependency-container
  * @filesource
@@ -21,11 +22,12 @@
 namespace DependencyInjection\Container\Test;
 
 use DependencyInjection\Container\PimpleGate;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This tests the PimpleGate.
  */
-class PimpleGateTest extends \PHPUnit_Framework_TestCase
+class PimpleGateTest extends TestCase
 {
     /**
      * Test that the container get's correctly instantiated.

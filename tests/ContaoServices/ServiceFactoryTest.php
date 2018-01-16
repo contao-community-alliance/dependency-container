@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2013-2017 Contao Community Alliance <https://c-c-a.org>
+ * (c) 2013-2018 Contao Community Alliance <https://c-c-a.org>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2017 Contao Community Alliance <https://c-c-a.org>
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  2013-2018 Contao Community Alliance <https://c-c-a.org>
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0
  * @link       https://github.com/contao-community-alliance/dependency-container
  * @filesource
@@ -24,10 +25,11 @@ use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\CoreBundle\Routing\ScopeMatcher;
 use DependencyInjection\Container\ContaoServices\ServiceFactory;
 use DependencyInjection\Container\PageProvider;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ServiceFactoryTest extends \PHPUnit_Framework_TestCase
+class ServiceFactoryTest extends TestCase
 {
     /**
      * Provider method for plain singletons.
@@ -118,7 +120,8 @@ class ServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->with('dbDatabase')
             ->willReturn(null);
 
-        $this->setExpectedException('RuntimeException', 'Contao Database is not properly configured.');
+        $this->expectException('RuntimeException');
+        $this->expectExceptionMessage('Contao Database is not properly configured.');
 
         $factory->createUserService();
     }
@@ -380,7 +383,8 @@ class ServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $instance = new \stdClass();
 
-        $this->setExpectedException('RuntimeException', 'Unknown TL_MODE encountered');
+        $this->expectException('RuntimeException');
+        $this->expectExceptionMessage('Unknown TL_MODE encountered');
 
         $this->assertSame($instance, $factory->createUserService());
     }

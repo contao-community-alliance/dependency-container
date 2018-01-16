@@ -3,13 +3,14 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2013-2017 Contao Community Alliance <https://c-c-a.org>
+ * (c) 2013-2018 Contao Community Alliance <https://c-c-a.org>
  *
  * This project is provided in good faith and hope to be usable by anyone.
  *
  * @package    contao-community-alliance/dependency-container
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance <https://c-c-a.org>
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  2013-2018 Contao Community Alliance <https://c-c-a.org>
  * @license    https://github.com/contao-community-alliance/event-dispatcher/LICENSE LGPL-3.0+
  * @link       https://github.com/contao-community-alliance/event-dispatcher
  * @filesource
@@ -24,11 +25,12 @@ use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
 use DependencyInjection\Container\CcaDependencyInjectionBundle;
 use DependencyInjection\Container\ContaoManager\Plugin;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the Plugin class.
  */
-class PluginTest extends \PHPUnit_Framework_TestCase
+class PluginTest extends TestCase
 {
     /**
      * Tests the object instantiation.
@@ -45,7 +47,7 @@ class PluginTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetBundles()
     {
-        $parser = $this->getMock(ParserInterface::class);
+        $parser = $this->getMockForAbstractClass(ParserInterface::class);
 
         /** @var BundleConfig $config */
         $config = (new Plugin())->getBundles($parser)[0];

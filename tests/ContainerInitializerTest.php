@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2017 Contao Community Alliance
+ * (c) 2018 Contao Community Alliance
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  2013-2018 Contao Community Alliance
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0+
  * @link       http://c-c-a.org
  * @filesource
@@ -25,11 +26,12 @@ namespace DependencyInjection\Container\Test;
 use Contao\System;
 use DependencyInjection\Container\ContainerInitializer;
 use DependencyInjection\Container\PimpleGate;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test the class ContainerInitializer.
  */
-class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
+class ContainerInitializerTest extends TestCase
 {
     /**
      * {@inheritDoc}
@@ -123,7 +125,9 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
     public function testThrowsWhenSymfonyContainerNotAvailable()
     {
         $initializer = $this->mockInitializer();
-        $this->setExpectedException('RuntimeException', 'Could not obtain symfony container.');
+
+        $this->expectException('RuntimeException');
+        $this->expectExceptionMessage('Could not obtain symfony container.');
 
         $initializer->init();
     }
@@ -152,8 +156,8 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
 
         $initializer = $this->mockInitializer();
 
-        $this->setExpectedException(
-            'Exception',
+        $this->expectException('Exception');
+        $this->expectExceptionMessage(
             __DIR__ . '/Mocks/Bundles/TestBundle/Resources/contao/config/services.php loaded'
         );
 
@@ -170,10 +174,9 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      */
     private function mockInitializer($singletons = [])
     {
-        $initializer = $this->getMock(
-            'DependencyInjection\Container\ContainerInitializer',
-            ['getInstanceOf']
-        );
+        $initializer = $this->getMockBuilder('DependencyInjection\Container\ContainerInitializer')
+            ->setMethods(['getInstanceOf'])
+            ->getMock();
 
         if (empty($singletons)) {
             $singletons = [

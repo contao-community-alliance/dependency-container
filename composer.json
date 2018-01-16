@@ -35,7 +35,7 @@
     "pimple/pimple": "~1.0"
   },
   "require-dev": {
-    "phpcq/all-tasks": "~1.1",
+    "phpcq/all-tasks": "~1.2",
     "contao/manager-bundle": "~4.4"
   },
   "autoload": {
@@ -51,7 +51,9 @@
   "extra": {
     "contao-manager-plugin": "DependencyInjection\\Container\\ContaoManager\\Plugin",
     "branch-alias": {
-      "dev-release/2.0.0": "2.0.x-dev"
+      "master": "2.0.x-dev",
+      "dev-develop": "2.1.x-dev",
+      "dev-support/1.8.x": "1.8.x-dev"
     }
   }
 }
