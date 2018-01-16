@@ -6,7 +6,7 @@
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
-         processIsolation="true"
+         processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
          bootstrap="tests/bootstrap.php"
@@ -16,16 +16,15 @@
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
-
-    <groups>
-        <exclude>
-            <group>slow</group>
-        </exclude>
-    </groups>
-
     <filter>
         <whitelist>
             <directory>./src/</directory>
+            <exclude>
+                <directory suffix=".php">./src/Resources</directory>
+            </exclude>
         </whitelist>
     </filter>
+    <logging>
+        <log type="coverage-text" target="php://stdout" />
+    </logging>
 </phpunit>

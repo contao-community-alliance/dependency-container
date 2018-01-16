@@ -1,15 +1,21 @@
 <?php
+
 /**
- * Dependency Container for Contao Open Source CMS
- * Copyright (C) 2013 Contao Community Alliance
+ * This file is part of contao-community-alliance/dependency-container.
  *
- * PHP version 5
+ * (c) 2013-2016 Contao Community Alliance
  *
- * @package    dependency-container
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan@lins.io>
- * @copyright  (c) 2013 Contao Community Alliance
- * @license    LGPL-3.0+
+ * @copyright  2013-2016 Contao Community Alliance
+ * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0+
+ * @link       http://c-c-a.org
  * @filesource
  */
 
@@ -31,8 +37,18 @@ if (
     exit(1);
 }
 
-$GLOBALS['TL_HOOKS'] = array(
-    'getPageLayout' => array(
-        array('Another', 'hook')
-    ),
+// This is the hack to mimic the Contao auto loader.
+spl_autoload_register(
+    function ($class) {
+        if (substr($class, 0, 7) === 'Contao\\') {
+            return null;
+        }
+        $result = class_exists('Contao\\' . $class);
+
+        if ($result) {
+            class_alias('Contao\\' . $class, $class);
+        }
+
+        return $result;
+    }
 );

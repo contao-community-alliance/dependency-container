@@ -1,7 +1,20 @@
 Dependency Injection Container for Contao Open Source CMS
 ===============================================
+[![Version](http://img.shields.io/packagist/v/contao-community-alliance/dependency-container.svg?style=flat-square)](https://packagist.org/packages/contao-community-alliance/dependency-container)
+[![Build Status](https://travis-ci.org/contao-community-alliance/dependency-container.png?branch=master)](https://travis-ci.org/contao-community-alliance/dependency-container)
+[![License](http://img.shields.io/packagist/l/contao-community-alliance/dependency-container.svg?style=flat-square)](http://spdx.org/licenses/LGPL-3.0+)
+[![Downloads](http://img.shields.io/packagist/dt/contao-community-alliance/dependency-container.svg?style=flat-square)](https://packagist.org/packages/contao-community-alliance/dependency-container)
+
 
 This DI Container based on [Pimple](http://pimple.sensiolabs.org).
+
+
+***NOTE on Contao 4:*** This is obsolete in Contao 4 - you should use the symfony container in Contao 4.
+
+This extension keeps compatibility for easing migration to Contao 4 - however, you should
+change your code to register your services using both registration ways.
+
+For a howto of how to migrate to Contao 4, please refer to the [UPGRADING-TO-CONTAO4.md](UPGRADING-TO-CONTAO4.md)
 
 Register parameters and services
 --------------------------------

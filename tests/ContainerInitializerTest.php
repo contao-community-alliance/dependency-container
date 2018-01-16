@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2013 Contao Community Alliance
+ * (c) 2017 Contao Community Alliance
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dependency-container
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0+
  * @link       http://c-c-a.org
  * @filesource
@@ -21,7 +22,9 @@
 
 namespace DependencyInjection\Container\Test;
 
+use Contao\System;
 use DependencyInjection\Container\ContainerInitializer;
+use DependencyInjection\Container\PimpleGate;
 
 /**
  * Test the class ContainerInitializer.
@@ -29,31 +32,100 @@ use DependencyInjection\Container\ContainerInitializer;
 class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Mock the config class.
-     *
-     * @return void
+     * {@inheritDoc}
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function mockConfig()
+    protected function tearDown()
     {
-        $GLOBALS['container'] = new \Pimple();
+        parent::tearDown();
+        unset($GLOBALS['container']);
+        $reflection = new \ReflectionProperty(System::class, 'objContainer');
+        $reflection->setAccessible(true);
+        $reflection->setValue(null, null);
+    }
 
-        $stub = $this->getMock(
-            'Config',
-            array(
-                'getInstance',
-                'get'
-            )
+    /**
+     * Test that an exception is thrown when the container is invalid.
+     *
+     * @return void
+     *
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage Dependency container is incompatible class. Expected PimpleGate but found DateTime
+     */
+    public function testBailsForInvalidContainer()
+    {
+        $GLOBALS['container'] = new \DateTime();
+
+        $initializer = new ContainerInitializer();
+
+        $initializer->init();
+    }
+
+    /**
+     * Test that the symfony container is fetched.
+     *
+     * @return void
+     */
+    public function testObtainsSymfonyContainerFromSystemClass()
+    {
+        System::setContainer(
+            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
         );
 
-        $stub->expects($this->any())
-            ->method('get')
-            ->with('dbDriver')
-            ->will($this->returnValue('mySQL'));
+        $container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('cca.legacy_dic')
+            ->willReturn([]);
 
-        $GLOBALS['container']['config'] = $stub;
+        $initializer = $this->mockInitializer();
+
+        $initializer->init();
+
+        $this->assertSame($container, $GLOBALS['container']->getContainer());
+        $this->assertSame($container, $GLOBALS['container']['symfony']);
+    }
+
+    /**
+     * Test that the symfony container is fetched.
+     *
+     * @return void
+     */
+    public function testObtainsSymfonyContainerFromKernel()
+    {
+        $GLOBALS['kernel'] = $this->getMockForAbstractClass('Symfony\Component\HttpKernel\KernelInterface');
+
+        $GLOBALS['kernel']->expects($this->once())->method('getContainer')->willReturn(
+            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
+        );
+
+        $container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('cca.legacy_dic')
+            ->willReturn([]);
+
+        $initializer = $this->mockInitializer();
+
+        $initializer->init();
+
+        $this->assertSame($container, $GLOBALS['container']->getContainer());
+        $this->assertSame($container, $GLOBALS['container']['symfony']);
+    }
+
+    /**
+     * Test that the symfony container is not fetched when none is available.
+     *
+     * @return void
+     */
+    public function testThrowsWhenSymfonyContainerNotAvailable()
+    {
+        $initializer = $this->mockInitializer();
+        $this->setExpectedException('RuntimeException', 'Could not obtain symfony container.');
+
+        $initializer->init();
     }
 
     /**
@@ -66,83 +138,65 @@ class ContainerInitializerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInit()
     {
-        $GLOBALS['container'] = new \Pimple();
-
-        $this->mockConfig();
-
-        define('TL_ROOT', __DIR__);
-        define('TL_MODE', 'FE');
-        $this->getMock('FrontendUser');
-
-        $initializer = $this->getMock('DependencyInjection\Container\ContainerInitializer', array('getActiveModules'));
-        $initializer->expects($this->any())
-            ->method('getActiveModules')
-            ->will($this->returnValue(array()));
-        /** @var ContainerInitializer $initializer */
-        $initializer->init();
-
-        $this->assertTrue(isset($GLOBALS['container']['config']));
-        $this->assertTrue(isset($GLOBALS['container']['environment']));
-        $this->assertTrue(isset($GLOBALS['container']['database.connection']));
-        $this->assertTrue(isset($GLOBALS['container']['input']));
-        $this->assertTrue(isset($GLOBALS['container']['user']));
-        $this->assertTrue(isset($GLOBALS['container']['session']));
-        $this->assertTrue(isset($GLOBALS['container']['page-provider']));
-
-        $this->assertEquals(
-            0,
-            array_search(
-                array('DependencyInjection\Container\PageProvider', 'setPage'),
-                $GLOBALS['TL_HOOKS']['getPageLayout']
-            ),
-            'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
+        System::setContainer(
+            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
         );
 
-        $this->assertInstanceOf('\FrontendUser', $GLOBALS['container']['user']);
+        $container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('cca.legacy_dic')
+            ->willReturn([__DIR__ . '/Mocks/Bundles/TestBundle/Resources/contao/config/services.php']);
+
+        $GLOBALS['container'] = new PimpleGate([], $container);
+
+        $initializer = $this->mockInitializer();
+
+        $this->setExpectedException(
+            'Exception',
+            __DIR__ . '/Mocks/Bundles/TestBundle/Resources/contao/config/services.php loaded'
+        );
+
+        /** @var ContainerInitializer $initializer */
+        $initializer->init();
     }
 
     /**
-     * Test the init method.
+     * Mock an initializer with the passed singletons
      *
-     * @return void
+     * @param array $singletons
      *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @return \PHPUnit_Framework_MockObject_MockObject|ContainerInitializer
      */
-    public function testInitCli()
+    private function mockInitializer($singletons = [])
     {
-        $GLOBALS['container'] = new \Pimple();
-
-        $this->mockConfig();
-
-        define('TL_ROOT', __DIR__);
-        define('TL_MODE', 'CLI');
-        $this->getMock('BackendUser');
-
-        $initializer = $this->getMock('DependencyInjection\Container\ContainerInitializer', array('getActiveModules'));
-        $initializer->expects($this->any())
-            ->method('getActiveModules')
-            ->will($this->returnValue(array()));
-        /** @var ContainerInitializer $initializer */
-        $initializer->init();
-
-        $this->assertTrue(isset($GLOBALS['container']['config']));
-        $this->assertTrue(isset($GLOBALS['container']['environment']));
-        $this->assertTrue(isset($GLOBALS['container']['database.connection']));
-        $this->assertTrue(isset($GLOBALS['container']['input']));
-        $this->assertTrue(isset($GLOBALS['container']['user']));
-        $this->assertTrue(isset($GLOBALS['container']['session']));
-        $this->assertTrue(isset($GLOBALS['container']['page-provider']));
-
-        $this->assertEquals(
-            0,
-            array_search(
-                array('DependencyInjection\Container\PageProvider', 'setPage'),
-                $GLOBALS['TL_HOOKS']['getPageLayout']
-            ),
-            'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
+        $initializer = $this->getMock(
+            'DependencyInjection\Container\ContainerInitializer',
+            ['getInstanceOf']
         );
 
-        $this->assertInstanceOf('\BackendUser', $GLOBALS['container']['user']);
+        if (empty($singletons)) {
+            $singletons = [
+                'Contao\Config' => $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock()
+            ];
+            $config
+                ->expects($this->any())
+                ->method('get')
+                ->with('dbDatabase')
+                ->willReturn('databaseName');
+        }
+
+        $initializer->expects($this->any())
+            ->method('getInstanceOf')
+            ->willReturnCallback(function ($className) use ($singletons) {
+                $singleton = trim($className, '\\');
+                if (!isset($singletons[$singleton])) {
+                    throw new \RuntimeException('Not mocked! ' . $className);
+                }
+
+                return $singletons[$singleton];
+            });
+
+        return $initializer;
     }
 }
