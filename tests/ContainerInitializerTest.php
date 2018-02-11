@@ -26,7 +26,9 @@ namespace DependencyInjection\Container\Test;
 use Contao\System;
 use DependencyInjection\Container\ContainerInitializer;
 use DependencyInjection\Container\PimpleGate;
+use Exception;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
  * Test the class ContainerInitializer.
@@ -121,13 +123,13 @@ class ContainerInitializerTest extends TestCase
      * Test that the symfony container is not fetched when none is available.
      *
      * @return void
+     *
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Could not obtain symfony container
      */
     public function testThrowsWhenSymfonyContainerNotAvailable()
     {
         $initializer = $this->mockInitializer();
-
-        $this->expectException('RuntimeException');
-        $this->expectExceptionMessage('Could not obtain symfony container.');
 
         $initializer->init();
     }
@@ -136,6 +138,9 @@ class ContainerInitializerTest extends TestCase
      * Test the init method.
      *
      * @return void
+     *
+     * @expectedException Exception
+     * @expectedExceptionMessageFormat  %s/Mocks/Bundles/TestBundle/Resources/contao/config/services.php loaded
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -155,11 +160,6 @@ class ContainerInitializerTest extends TestCase
         $GLOBALS['container'] = new PimpleGate([], $container);
 
         $initializer = $this->mockInitializer();
-
-        $this->expectException('Exception');
-        $this->expectExceptionMessage(
-            __DIR__ . '/Mocks/Bundles/TestBundle/Resources/contao/config/services.php loaded'
-        );
 
         /** @var ContainerInitializer $initializer */
         $initializer->init();
