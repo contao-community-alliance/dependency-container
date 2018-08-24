@@ -6,6 +6,7 @@ services:
 
     cca.legacy_dic.initializer:
         class: DependencyInjection\Container\ContainerInitializer
+        public: true
 
     DependencyInjection\Container\ContaoServices\ServiceFactory:
         arguments: ["@service_container"]
