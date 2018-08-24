@@ -1,39 +1,48 @@
 services:
     cca.legacy_dic:
         class: DependencyInjection\Container\LegacyDependencyInjectionContainer
+        public: true
         arguments: ["@contao.framework"]
         deprecated: ~
 
     cca.legacy_dic.initializer:
         class: DependencyInjection\Container\ContainerInitializer
+        public: true
 
     DependencyInjection\Container\ContaoServices\ServiceFactory:
         arguments: ["@service_container"]
     cca.legacy_dic.contao_config:
         class: Contao\Config
+        public: true
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createConfigService'
         deprecated: 'The "%service_id%" service is deprecated. Use "contao.framework" createInstance() instead'
     cca.legacy_dic.contao_environment:
         class: Contao\Environment
+        public: true
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createEnvironmentService'
         deprecated: 'The "%service_id%" service is deprecated. Use "contao.framework" createInstance() instead'
     cca.legacy_dic.contao_user:
         class: Contao\User
+        public: true
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createUserService'
         deprecated: ~
     cca.legacy_dic.contao_database_connection:
         class: Contao\Database
+        public: true
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createDatabaseConnectionService'
         deprecated: 'The "%service_id%" service is deprecated. Use the "database_connection" service instead'
     cca.legacy_dic.contao_input:
         class: Contao\Input
+        public: true
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createInputService'
         deprecated: 'The "%service_id%" service is deprecated. Use "contao.framework" createInstance() instead'
     cca.legacy_dic.contao_session:
         class: Contao\Session
+        public: true
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createSessionService'
         deprecated: 'The "%service_id%" service is deprecated. Use the session service instead'
     cca.legacy_dic.contao_page_provider:
         class: DependencyInjection\Container\PageProvider
+        public: true
         factory: 'DependencyInjection\Container\ContaoServices\ServiceFactory:createPageProviderService'
         deprecated: ~
