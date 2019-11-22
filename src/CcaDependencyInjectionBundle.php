@@ -36,6 +36,10 @@ class CcaDependencyInjectionBundle extends Bundle
     {
         parent::build($container);
 
+        if ($container->getParameterBag() instanceof FrozenParameterBag) {
+            return;
+        }
+        
         // Add all resource paths to keep them handy.
         $container->setParameter('cca.legacy_dic', $this->getResourcePaths($container));
     }
