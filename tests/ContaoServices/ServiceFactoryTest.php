@@ -100,6 +100,46 @@ class ServiceFactoryTest extends TestCase
      * @expectedException RuntimeException
      * @expectedExceptionMessage Contao Database is not properly configured
      */
+    public function testCreateUserServiceWithoutDbParameter()
+    {
+        $factory = new ServiceFactory(
+            $container = $this->getMockForAbstractClass(ContainerInterface::class)
+        );
+
+        $container
+            ->method('get')
+            ->withConsecutive(
+                ['cca.legacy_dic.contao_config'],
+                ['contao.framework'],
+                ['request_stack']
+            )
+            ->willReturnOnConsecutiveCalls(
+                $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock(),
+                $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class),
+                $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock()
+            );
+        $container
+            ->method('hasParameter')
+            ->withConsecutive(['database_host'])
+            ->willReturnOnConsecutiveCalls(false);
+
+        $config
+            ->expects($this->never())
+            ->method('get')
+            ->with('dbDatabase')
+            ->willReturn(null);
+
+        $factory->createUserService();
+    }
+
+    /**
+     * Test the createUserService method in Backend mode.
+     *
+     * @return void
+     *
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Contao Database is not properly configured
+     */
     public function testCreateUserServiceWithoutDb()
     {
         $factory = new ServiceFactory(
@@ -118,6 +158,10 @@ class ServiceFactoryTest extends TestCase
                 $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class),
                 $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock()
             );
+        $container
+            ->method('hasParameter')
+            ->withConsecutive(['database_host'])
+            ->willReturnOnConsecutiveCalls(true);
 
         $config
             ->expects($this->once())
@@ -157,6 +201,10 @@ class ServiceFactoryTest extends TestCase
                 $requestStack,
                 $framework
             );
+        $container
+            ->method('hasParameter')
+            ->withConsecutive(['database_host'])
+            ->willReturnOnConsecutiveCalls(true);
 
         $config
             ->expects($this->once())
@@ -221,6 +269,10 @@ class ServiceFactoryTest extends TestCase
                 $requestStack,
                 $framework
             );
+        $container
+            ->method('hasParameter')
+            ->withConsecutive(['database_host'])
+            ->willReturnOnConsecutiveCalls(true);
 
         $config
             ->expects($this->once())
@@ -291,6 +343,10 @@ class ServiceFactoryTest extends TestCase
                 $requestStack,
                 $framework
             );
+        $container
+            ->method('hasParameter')
+            ->withConsecutive(['database_host'])
+            ->willReturnOnConsecutiveCalls(true);
 
         $config
             ->expects($this->once())
@@ -360,6 +416,10 @@ class ServiceFactoryTest extends TestCase
                 $requestStack,
                 $framework
             );
+        $container
+            ->method('hasParameter')
+            ->withConsecutive(['database_host'])
+            ->willReturnOnConsecutiveCalls(true);
 
         $config
             ->expects($this->once())
