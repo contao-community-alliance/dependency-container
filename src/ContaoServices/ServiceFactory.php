@@ -86,7 +86,7 @@ class ServiceFactory
         // Work around the fact that \Contao\Database::getInstance() always creates an instance,
         // even when no driver is configured (Database and Config are being imported into the user class and there-
         // fore causing an fatal error).
-        if (!$config->get('dbDatabase')) {
+        if (!$this->container->hasParameter('database_host') || !$config->get('dbDatabase')) {
             throw new \RuntimeException('Contao Database is not properly configured.');
         }
 
