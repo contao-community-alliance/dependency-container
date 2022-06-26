@@ -35,10 +35,10 @@
   "require": {
     "php": "^7.4 || ^8.0",
     "contao/core-bundle": "^4.9",
-    "symfony/config": "^5.4",
-    "symfony/dependency-injection": "^5.4",
-    "symfony/http-kernel": "^5.4",
-    "symfony/yaml": "^5.4",
+    "symfony/config": "^4.0 || ^5.4",
+    "symfony/dependency-injection": "^4.1.12 || ^5.4",
+    "symfony/http-kernel": "^4.0 || ^5.4",
+    "symfony/yaml": "^4.0 || ^5.4",
     "pimple/pimple": "^1.0"
   },
   "require-dev": {
