@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dependency-container.
  *
- * (c) 2013-2020 Contao Community Alliance <https://c-c-a.org>
+ * (c) 2013-2022 Contao Community Alliance <https://c-c-a.org>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2020 Contao Community Alliance <https://c-c-a.org>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance <https://c-c-a.org>
  * @license    https://github.com/contao-community-alliance/dependency-container/blob/master/LICENSE LGPL-3.0
  * @link       https://github.com/contao-community-alliance/dependency-container
  * @filesource
@@ -54,7 +55,7 @@ class CcaDependencyInjectionExtension extends Extension
     private function getResourcePaths(ContainerBuilder $container)
     {
         $paths   = [];
-        $rootDir = dirname($container->getParameter('kernel.root_dir'));
+        $rootDir = dirname($container->getParameter('kernel.project_dir'));
 
         foreach ($container->getParameter('kernel.bundles') as $name => $class) {
             if (null !== ($path = $this->getResourcePathFromBundle($rootDir, $name, $class))) {

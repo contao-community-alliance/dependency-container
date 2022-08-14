@@ -1,7 +1,7 @@
 Dependency Injection Container for Contao Open Source CMS
 ===============================================
 [![Version](http://img.shields.io/packagist/v/contao-community-alliance/dependency-container.svg?style=flat-square)](https://packagist.org/packages/contao-community-alliance/dependency-container)
-[![Build Status](https://travis-ci.org/contao-community-alliance/dependency-container.png?branch=master)](https://travis-ci.org/contao-community-alliance/dependency-container)
+[![Build Status](https://github.com/contao-community-alliance/dependency-container/actions/workflows/diagnostics.yml/badge.svg)](https://github.com/contao-community-alliance/dependency-container/actions)
 [![License](http://img.shields.io/packagist/l/contao-community-alliance/dependency-container.svg?style=flat-square)](http://spdx.org/licenses/LGPL-3.0+)
 [![Downloads](http://img.shields.io/packagist/dt/contao-community-alliance/dependency-container.svg?style=flat-square)](https://packagist.org/packages/contao-community-alliance/dependency-container)
 
