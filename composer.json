@@ -58,9 +58,9 @@
   "extra": {
     "contao-manager-plugin": "DependencyInjection\\Container\\ContaoManager\\Plugin",
     "branch-alias": {
-      "master": "2.0.x-dev",
-      "dev-develop": "2.1.x-dev",
-      "dev-release/2.1.0": "2.1.x-dev"
+      "master": "2.1.x-dev",
+      "dev-support/2.0.x": "2.0.x-dev",
+      "dev-support/1.8.x": "1.8.x-dev"
     }
   }
 }
