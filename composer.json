@@ -1,6 +1,8 @@
 {
   "name": "contao-community-alliance/dependency-container",
   "description": "Dependency container based on pimple for Contao open source cms.",
+  "license": "LGPL-3.0-or-later",
+  "type": "contao-bundle",
   "keywords": [
     "contao",
     "dependency",
@@ -9,9 +11,6 @@
     "injection",
     "cca"
   ],
-  "type": "contao-bundle",
-  "homepage": "https://c-c-a.org/",
-  "license": "LGPL-3.0-or-later",
   "authors": [
     {
       "name": "Christian Schiffler",
@@ -25,6 +24,7 @@
       "role": "Developer"
     }
   ],
+  "homepage": "https://c-c-a.org/",
   "support": {
     "email": "info@c-c-a.org",
     "issues": "https://github.com/contao-community-alliance/dependency-container/issues",
@@ -35,15 +35,15 @@
   "require": {
     "php": "^7.4 || ^8.0",
     "contao/core-bundle": "^4.9",
+    "pimple/pimple": "^1.0",
     "symfony/config": "^4.0 || ^5.4",
     "symfony/dependency-injection": "^4.1.12 || ^5.4",
     "symfony/http-kernel": "^4.0 || ^5.4",
-    "symfony/yaml": "^4.0 || ^5.4",
-    "pimple/pimple": "^1.0"
+    "symfony/yaml": "^4.0 || ^5.4"
   },
   "require-dev": {
-    "phpcq/all-tasks": "^1.2",
-    "contao/manager-bundle": "^4.4"
+    "contao/manager-bundle": "^4.4",
+    "phpcq/runner-bootstrap": "^1.0@dev"
   },
   "autoload": {
     "psr-4": {
@@ -55,18 +55,18 @@
       "DependencyInjection\\Container\\Test\\": "tests/"
     }
   },
-  "extra": {
-    "contao-manager-plugin": "DependencyInjection\\Container\\ContaoManager\\Plugin",
-    "branch-alias": {
-      "master": "2.1.x-dev",
-      "dev-support/2.0.x": "2.0.x-dev",
-      "dev-support/1.8.x": "1.8.x-dev"
-    }
-  },
   "config": {
     "allow-plugins": {
       "contao-components/installer": false,
       "contao/manager-plugin": false
     }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-support/1.8.x": "1.8.x-dev",
+      "dev-support/2.0.x": "2.0.x-dev",
+      "master": "2.1.x-dev"
+    },
+    "contao-manager-plugin": "DependencyInjection\\Container\\ContaoManager\\Plugin"
   }
 }

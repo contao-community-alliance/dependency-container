@@ -14,3 +14,5 @@ nbproject/
 build
 vendor
 composer.lock
+.phpcq
+.phpunit.result.cache
