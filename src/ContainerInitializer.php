@@ -23,6 +23,9 @@
 namespace DependencyInjection\Container;
 
 use Contao\System;
+use InvalidArgumentException;
+use ReflectionClass;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -34,22 +37,21 @@ class ContainerInitializer
     /**
      * Get the currently defined global container or create it if no container is present so far.
      *
-     * @return PimpleGate
-     *
-     * @throws \RuntimeException When an incompatible DIC is encountered.
+     * @throws RuntimeException When an incompatible DIC is encountered.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function getContainer()
+    protected function getContainer(): PimpleGate
     {
         if (!isset($GLOBALS['container'])) {
             $GLOBALS['container'] = new PimpleGate([], $this->getSymfonyContainer());
         }
         $container = $GLOBALS['container'];
+        assert(is_object($container));
 
         if (!$container instanceof PimpleGate) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Dependency container is incompatible class. Expected PimpleGate but found ' . get_class($container),
                 1
             );
@@ -61,45 +63,51 @@ class ContainerInitializer
     /**
      * Determine the symfony container.
      *
-     * @return ContainerInterface|null
-     *
-     * @throws \RuntimeException When the container can not be obtained.
+     * @throws RuntimeException When the container can not be obtained.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    private function getSymfonyContainer()
+    private function getSymfonyContainer(): ContainerInterface
     {
         // 1. Preferred way in contao 4.0+
-        if (method_exists('Contao\System', 'getContainer')
-            && ($container = System::getContainer()) instanceof ContainerInterface
-        ) {
-            return $container;
+        if (method_exists(System::class, 'getContainer')) {
+            $container = System::getContainer();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
         }
 
         // 2. Fallback to fetch from kernel.
-        if (isset($GLOBALS['kernel'])
-            && $GLOBALS['kernel'] instanceof KernelInterface
-            && ($container = $GLOBALS['kernel']->getContainer()) instanceof ContainerInterface
-        ) {
-            return $container;
+        if (isset($GLOBALS['kernel']) && $GLOBALS['kernel'] instanceof KernelInterface) {
+            $container = $GLOBALS['kernel']->getContainer();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
         }
 
         // 3. Nothing worked out, throw Exception as this may never happen.
-        throw new \RuntimeException('Could not obtain symfony container.');
+        throw new RuntimeException('Could not obtain symfony container.');
     }
 
     /**
      * Retrieve an instance of a certain class.
      *
-     * @param string $className The class name.
+     * @template T
      *
-     * @return object
+     * @param class-string<T> $className The class name.
+     *
+     * @template-typeof T $className
+     *
+     * @return T
+     *
+     * @psalm-suppress MixedInferredReturnType
      */
-    public function getInstanceOf($className)
+    public function getInstanceOf(string $className): object
     {
-        $class = new \ReflectionClass($className);
+        $class = new ReflectionClass($className);
 
+        /** @psalm-suppress MixedReturnStatement */
         if ($class->hasMethod('getInstance')) {
             return $class->getMethod('getInstance')->invoke(null);
         }
@@ -112,27 +120,31 @@ class ContainerInitializer
      *
      * @param PimpleGate $container The container that got initialized.
      *
-     * @return void
+     * @throws InvalidArgumentException When the hook method is invalid.
      *
-     * @throws \InvalidArgumentException When the hook method is invalid.
+     * @psalm-suppress MixedAssignment
+     * @psalm-suppress MixedArgument
+     * @psalm-suppress MixedFunctionCall
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ElseExpression)
      */
-    protected function callHooks(PimpleGate $container)
+    protected function callHooks(PimpleGate $container): void
     {
-        if (isset($GLOBALS['TL_HOOKS']['initializeDependencyContainer']) &&
+        if (
+            isset($GLOBALS['TL_HOOKS']['initializeDependencyContainer']) &&
             is_array($GLOBALS['TL_HOOKS']['initializeDependencyContainer'])
         ) {
             foreach ($GLOBALS['TL_HOOKS']['initializeDependencyContainer'] as $callback) {
                 if (is_array($callback)) {
-                    $class = new \ReflectionClass($callback[0]);
+                    $class = new ReflectionClass($callback[0]);
                     if (!$class->hasMethod($callback[1])) {
                         if ($class->hasMethod('__call')) {
                             $method = $class->getMethod('__call');
                             $args   = [$callback[1], $container];
                         } else {
-                            throw new \InvalidArgumentException(
+                            throw new InvalidArgumentException(
                                 sprintf('No such Method %s::%s', $callback[0], $callback[1])
                             );
                         }
@@ -147,9 +159,9 @@ class ContainerInitializer
                     }
 
                     $method->invokeArgs($object, $args);
-                } else {
-                    call_user_func($callback, $container);
+                    continue;
                 }
+                call_user_func($callback, $container);
             }
         }
     }
@@ -159,26 +171,24 @@ class ContainerInitializer
      *
      * @param PimpleGate $container The DIC to populate.
      *
-     * @return void
-     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    private function loadServiceConfigurations(PimpleGate $container)
+    private function loadServiceConfigurations(PimpleGate $container): void
     {
+        /** @var list<string> $paths */
         $paths = $container->getSymfonyParameter('cca.legacy_dic');
 
         // include the module services configurations
         foreach ($paths as $file) {
+            /** @psalm-suppress UnresolvableInclude */
             require_once $file;
         }
     }
 
     /**
      * Init the global dependency container.
-     *
-     * @return void
      */
-    public function init()
+    public function init(): void
     {
         // Retrieve the default service container.
         $container = $this->getContainer();

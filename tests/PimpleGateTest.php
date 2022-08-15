@@ -22,7 +22,10 @@
 namespace DependencyInjection\Container\Test;
 
 use DependencyInjection\Container\PimpleGate;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use stdClass;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * This tests the PimpleGate.
@@ -31,10 +34,8 @@ class PimpleGateTest extends TestCase
 {
     /**
      * Test that the container get's correctly instantiated.
-     *
-     * @return void
      */
-    public function testInstantiation()
+    public function testInstantiation(): void
     {
         $container = new PimpleGate();
 
@@ -43,12 +44,10 @@ class PimpleGateTest extends TestCase
 
     /**
      * Test that the container get's correctly instantiated.
-     *
-     * @return void
      */
-    public function testInstantiationWithSymfonyContainer()
+    public function testInstantiationWithSymfonyContainer(): void
     {
-        $symfony   = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface');
+        $symfony   = $this->getMockForAbstractClass(ContainerInterface::class);
         $container = new PimpleGate([], $symfony);
 
         $this->assertInstanceOf('DependencyInjection\Container\PimpleGate', $container);
@@ -58,30 +57,26 @@ class PimpleGateTest extends TestCase
 
     /**
      * Test that symfony services get delegated.
-     *
-     * @return void
      */
-    public function testGetSymfonyService()
+    public function testGetSymfonyService(): void
     {
-        $symfony   = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface');
+        $symfony   = $this->getMockForAbstractClass(ContainerInterface::class);
         $container = new PimpleGate([], $symfony);
 
-        $symfony->expects($this->once())->method('get')->with('dummy-service')->willReturn($service = new \stdClass());
+        $symfony->expects($this->once())->method('get')->with('dummy-service')->willReturn($service = new stdClass());
 
         $this->assertSame($service, $container->getSymfonyService('dummy-service'));
     }
 
     /**
      * Test that symfony services get delegated.
-     *
-     * @return void
      */
-    public function testDelegateSymfonyService()
+    public function testDelegateSymfonyService(): void
     {
-        $symfony   = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface');
+        $symfony   = $this->getMockForAbstractClass(ContainerInterface::class);
         $container = new PimpleGate([], $symfony);
 
-        $symfony->expects($this->once())->method('get')->with('dummy-service')->willReturn($service = new \stdClass());
+        $symfony->expects($this->once())->method('get')->with('dummy-service')->willReturn($service = new stdClass());
 
         $container->provideSymfonyService('dummy-service');
 
@@ -91,64 +86,53 @@ class PimpleGateTest extends TestCase
 
     /**
      * Test that symfony services cannot get delegated if a service exists.
-     *
-     * @return void
-     *
-     * @expectedException        \LogicException
-     * @expectedExceptionMessage Service dummy-service has already been defined.
      */
-    public function testDelegateSymfonyServiceFailsForExistingService()
+    public function testDelegateSymfonyServiceFailsForExistingService(): void
     {
-        $symfony   = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface');
-        $container = new PimpleGate(['dummy-service' => new \stdClass()], $symfony);
+        $symfony   = $this->getMockForAbstractClass(ContainerInterface::class);
+        $container = new PimpleGate(['dummy-service' => new stdClass()], $symfony);
 
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Service dummy-service has already been defined.');
         $container->provideSymfonyService('dummy-service');
     }
 
     /**
      * Test that delegated symfony services can not get overwritten.
-     *
-     * @return void
-     *
-     * @expectedException        \LogicException
-     * @expectedExceptionMessage Service dummy-service has been delegated to symfony, cannot set.
      */
-    public function testDelegateSymfonyServiceCannotGetOverridden()
+    public function testDelegateSymfonyServiceCannotGetOverridden(): void
     {
-        $symfony   = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface');
+        $symfony   = $this->getMockForAbstractClass(ContainerInterface::class);
         $container = new PimpleGate([], $symfony);
 
         $container->provideSymfonyService('dummy-service');
 
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Service dummy-service has been delegated to symfony, cannot set.');
         $container['dummy-service'] = 'test override';
     }
 
     /**
      * Test that delegated symfony services can not get removed.
-     *
-     * @return void
-     *
-     * @expectedException        \LogicException
-     * @expectedExceptionMessage Service dummy-service has been delegated to symfony, cannot unset.
      */
-    public function testDelegateSymfonyServiceCannotBeRemoved()
+    public function testDelegateSymfonyServiceCannotBeRemoved(): void
     {
-        $symfony   = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface');
+        $symfony   = $this->getMockForAbstractClass(ContainerInterface::class);
         $container = new PimpleGate([], $symfony);
 
         $container->provideSymfonyService('dummy-service');
 
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Service dummy-service has been delegated to symfony, cannot unset.');
         unset($container['dummy-service']);
     }
 
     /**
      * Test that non delegated symfony services can get removed.
-     *
-     * @return void
      */
-    public function testServiceCanBeRemoved()
+    public function testServiceCanBeRemoved(): void
     {
-        $symfony   = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface');
+        $symfony   = $this->getMockForAbstractClass(ContainerInterface::class);
         $container = new PimpleGate(['dummy-service' => 'bar'], $symfony);
 
         unset($container['dummy-service']);

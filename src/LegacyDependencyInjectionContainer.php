@@ -31,14 +31,16 @@ class LegacyDependencyInjectionContainer
     /**
      * The Contao framework.
      *
-     * @var ContaoFrameworkInterface
+     * @psalm-suppress DeprecatedClass
      */
-    private $framework;
+    private ContaoFrameworkInterface $framework;
 
     /**
      * Create a new instance.
      *
      * @param ContaoFrameworkInterface $framework The Contao framework.
+     *
+     * @psalm-suppress DeprecatedClass
      */
     public function __construct(ContaoFrameworkInterface $framework)
     {
@@ -55,10 +57,11 @@ class LegacyDependencyInjectionContainer
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function getService($serviceName)
+    public function getService(string $serviceName)
     {
         $this->framework->initialize();
 
+        /** @psalm-suppress MixedArrayAccess */
         return $GLOBALS['container'][$serviceName];
     }
 }

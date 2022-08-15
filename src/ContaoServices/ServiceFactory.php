@@ -23,25 +23,30 @@ namespace DependencyInjection\Container\ContaoServices;
 
 use Contao\BackendUser;
 use Contao\Config;
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\Database;
 use Contao\Environment;
 use Contao\FrontendUser;
 use Contao\Input;
 use Contao\Session;
 use DependencyInjection\Container\PageProvider;
+use LogicException;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * The class provides services for create.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ServiceFactory
 {
     /**
      * The contao framework.
-     *
-     * @var ContainerInterface
      */
-    protected $container;
+    protected ContainerInterface $container;
 
     /**
      * Create a new instance.
@@ -57,20 +62,26 @@ class ServiceFactory
      * Create the config service for contao config.
      *
      * @return Config
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
     public function createConfigService()
     {
-        return $this->container->get('contao.framework')->createInstance(Config::class);
+        /** @psalm-suppress LessSpecificReturnStatement */
+        return $this->getFramework()->createInstance(Config::class);
     }
 
     /**
      * Create the environment service for contao environment.
      *
      * @return Environment
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
     public function createEnvironmentService()
     {
-        return $this->container->get('contao.framework')->createInstance(Environment::class);
+        /** @psalm-suppress LessSpecificReturnStatement */
+        return $this->getFramework()->createInstance(Environment::class);
     }
 
     /**
@@ -78,86 +89,117 @@ class ServiceFactory
      *
      * @return BackendUser|FrontendUser
      *
-     * @throws \RuntimeException Throw an exception if contao mode not defined.
+     * @throws RuntimeException Throw an exception if contao mode not defined.
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
     public function createUserService()
     {
         $config = $this->container->get('cca.legacy_dic.contao_config');
+        assert($config instanceof Config);
         // Work around the fact that \Contao\Database::getInstance() always creates an instance,
-        // even when no driver is configured (Database and Config are being imported into the user class and there-
-        // fore causing an fatal error).
+        // even when no driver is configured (Database and Config are being imported into the user class and therefore
+        // causing a fatal error).
         if (!$this->container->hasParameter('database_host') || !$config->get('dbDatabase')) {
-            throw new \RuntimeException('Contao Database is not properly configured.');
+            throw new RuntimeException('Contao Database is not properly configured.');
         }
 
         $matcher = $this->container->get('contao.routing.scope_matcher');
-        $request = $this->container->get('request_stack')->getCurrentRequest();
+        /** @var RequestStack $requestStack */
+        $requestStack = $this->container->get('request_stack');
+
+        $request = $requestStack->getCurrentRequest();
+        assert($matcher instanceof ScopeMatcher);
 
         // NULL request => CLI mode.
         if ((null === $request) || $matcher->isBackendRequest($request)) {
-            return $this->container->get('contao.framework')->createInstance(BackendUser::class);
+            /** @psalm-suppress LessSpecificReturnStatement */
+            return $this->getFramework()->createInstance(BackendUser::class);
         }
 
         if ($matcher->isFrontendRequest($request)) {
-            return $this->container->get('contao.framework')->createInstance(FrontendUser::class);
+            /** @psalm-suppress LessSpecificReturnStatement */
+            return $this->getFramework()->createInstance(FrontendUser::class);
         }
 
-        throw new \RuntimeException('Unknown TL_MODE encountered', 1);
+        throw new RuntimeException('Unknown TL_MODE encountered', 1);
     }
 
     /**
      * Create the database connection service for contao database.
      *
      * @return Database
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
     public function createDatabaseConnectionService()
     {
         // Ensure the user is loaded before the database class.
         $this->container->get('cca.legacy_dic.contao_user');
 
-        return $this->container->get('contao.framework')->createInstance(Database::class);
+        /** @psalm-suppress LessSpecificReturnStatement */
+        return $this->getFramework()->createInstance(Database::class);
     }
 
     /**
      * Create the input service for contao input.
      *
      * @return Input
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
     public function createInputService()
     {
-        return $this->container->get('contao.framework')->createInstance(Input::class);
+        /** @psalm-suppress LessSpecificReturnStatement */
+        return $this->getFramework()->createInstance(Input::class);
     }
 
     /**
      * Create the session service for contao session.
      *
+     * @psalm-suppress DeprecatedClass
+     * @psalm-suppress MixedMethodCall
+     *
      * @return Session
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
     public function createSessionService()
     {
-        return $this->container->get('contao.framework')->createInstance(Session::class);
+        /** @psalm-suppress LessSpecificReturnStatement */
+        return $this->getFramework()->createInstance(Session::class);
     }
 
     /**
      * Create the page provider service for provide the current active page model.
      *
-     * @return PageProvider
+     * @psalm-suppress MixedArrayAssignment
+     * @psalm-suppress MixedArrayAccess
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function createPageProviderService()
+    public function createPageProviderService(): PageProvider
     {
         $pageProvider = new PageProvider();
 
         if (isset($GLOBALS['TL_HOOKS']['getPageLayout']) && is_array($GLOBALS['TL_HOOKS']['getPageLayout'])) {
-            array_unshift(
-                $GLOBALS['TL_HOOKS']['getPageLayout'],
-                [PageProvider::class, 'setPage']
-            );
-        } else {
-            $GLOBALS['TL_HOOKS']['getPageLayout'] = [[PageProvider::class, 'setPage']];
+            $GLOBALS['TL_HOOKS']['getPageLayout'] = [];
         }
+        unset($GLOBALS['TL_HOOKS']['getPageLayout'][PageProvider::class . '::setPage']);
+        $GLOBALS['TL_HOOKS']['getPageLayout'][PageProvider::class . '::setPage'] = [PageProvider::class, 'setPage'];
 
         return $pageProvider;
+    }
+
+    /** @psalm-suppress DeprecatedClass */
+    private function getFramework(): ContaoFrameworkInterface
+    {
+        $framework = $this->container->get('contao.framework');
+
+        if (!$framework instanceof ContaoFrameworkInterface) {
+            throw new LogicException('Failed to obtain Contao Framework');
+        }
+
+        return $framework;
     }
 }

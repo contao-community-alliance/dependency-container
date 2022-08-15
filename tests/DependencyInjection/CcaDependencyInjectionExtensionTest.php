@@ -21,24 +21,26 @@
 
 namespace DependencyInjection\Container\Test\DependencyInjection;
 
+use Contao\CoreBundle\HttpKernel\Bundle\ContaoModuleBundle;
 use DependencyInjection\Container\DependencyInjection\CcaDependencyInjectionExtension;
+use DependencyInjection\Container\Test\Mocks\Bundles\TestBundle\TestBundle;
+use DependencyInjection\Container\Test\Mocks\Bundles\TestBundleNoResources\TestBundleNoResources;
+use FilesystemIterator;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+
 use function dirname;
 
 final class CcaDependencyInjectionExtensionTest extends TestCase
 {
     /**
      * Temporary directory.
-     *
-     * @var string
      */
-    private $tempDir;
+    private string $tempDir;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -46,34 +48,29 @@ final class CcaDependencyInjectionExtensionTest extends TestCase
         mkdir($this->tempDir, 0700, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function tearDown()
+    public function tearDown(): void
     {
         if (!file_exists($this->tempDir)) {
             return;
         }
-        $children = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($this->tempDir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
+        $children = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($this->tempDir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($children as $child) {
             if ($child->isDir()) {
                 rmdir($child);
-            } else {
-                unlink($child);
+                continue;
             }
+            unlink($child);
         }
         rmdir($this->tempDir);
     }
 
     /**
      * Tests adding the bundle services to the container.
-     *
-     * @return void
      */
-    public function testLoad()
+    public function testLoad(): void
     {
         $container = $this->mockContainerBuilder();
         $extension = new CcaDependencyInjectionExtension();
@@ -84,10 +81,8 @@ final class CcaDependencyInjectionExtensionTest extends TestCase
 
     /**
      * Test container building.
-     *
-     * @return void
      */
-    public function testBuild()
+    public function testBuild(): void
     {
         $container = $this->mockContainerBuilder();
         $extension = new CcaDependencyInjectionExtension();
@@ -99,10 +94,9 @@ final class CcaDependencyInjectionExtensionTest extends TestCase
         mkdir($this->tempDir . '/system/config', 0700, true);
         touch($this->tempDir . '/system/config/services.php');
 
-        $container->setParameter('kernel.root_dir', $this->tempDir . '/app');
         $container->setParameter('kernel.bundles', [
-            'TestBundle' => 'DependencyInjection\Container\Test\Mocks\Bundles\TestBundle\TestBundle',
-            'foobar'     => 'Contao\CoreBundle\HttpKernel\Bundle\ContaoModuleBundle',
+            'TestBundle' => TestBundle::class,
+            'foobar'     => ContaoModuleBundle::class,
         ]);
 
         $extension->load([], $container);
@@ -120,18 +114,15 @@ final class CcaDependencyInjectionExtensionTest extends TestCase
 
     /**
      * Test container building.
-     *
-     * @return void
      */
-    public function testBuildWithBundlesWithoutResources()
+    public function testBuildWithBundlesWithoutResources(): void
     {
         $container = $this->mockContainerBuilder();
         $extension = new CcaDependencyInjectionExtension();
 
-        $container->setParameter('kernel.root_dir', $this->tempDir . '/app');
         $container->setParameter('kernel.bundles', [
-            'TestBundleNoResources' => 'DependencyInjection\Container\Test\Mocks\Bundles\TestBundleNoResources\TestBundleNoResources',
-            'foobar'     => 'Contao\CoreBundle\HttpKernel\Bundle\ContaoModuleBundle',
+            'TestBundleNoResources' => TestBundleNoResources::class,
+            'foobar'                => ContaoModuleBundle::class,
         ]);
 
         $extension->load([], $container);
@@ -142,14 +133,14 @@ final class CcaDependencyInjectionExtensionTest extends TestCase
     /**
      * Returns a Symfony container with the Contao core extension configuration.
      */
-    protected function mockContainerBuilder($projectDir = '')
+    protected function mockContainerBuilder(): ContainerBuilder
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.debug', false);
         $container->setParameter('kernel.default_locale', 'en');
-        $container->setParameter('kernel.cache_dir', $projectDir.'/var/cache');
-        $container->setParameter('kernel.project_dir', $projectDir);
-        $container->setParameter('kernel.root_dir', $projectDir.'/app');
+        $container->setParameter('kernel.cache_dir', $this->tempDir . '/var/cache');
+        $container->setParameter('kernel.project_dir', $this->tempDir);
+        $container->setParameter('kernel.root_dir', $this->tempDir . '/app');
         $container->setParameter('kernel.bundles', []);
 
         return $container;
