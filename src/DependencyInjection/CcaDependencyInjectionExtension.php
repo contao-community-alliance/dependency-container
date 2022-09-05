@@ -23,10 +23,15 @@
 
 namespace DependencyInjection\Container\DependencyInjection;
 
+use Contao\CoreBundle\HttpKernel\Bundle\ContaoModuleBundle;
+use ReflectionClass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader;
+
+use function dirname;
+use function is_dir;
 
 /**
  * This is the class that loads and manages the bundle configuration
@@ -36,7 +41,7 @@ class CcaDependencyInjectionExtension extends Extension
     /**
      * {@inheritDoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
@@ -50,15 +55,27 @@ class CcaDependencyInjectionExtension extends Extension
      *
      * @param ContainerBuilder $container The container builder.
      *
-     * @return array
+     * @return list<string>
      */
-    private function getResourcePaths(ContainerBuilder $container)
+    private function getResourcePaths(ContainerBuilder $container): array
     {
-        $paths   = [];
-        $rootDir = dirname($container->getParameter('kernel.project_dir'));
+        $paths = [];
+        /**
+         * @psalm-suppress UndefinedDocblockClass - PHP 8 support for UnitEnum declaration.
+         * @psalm-suppress InvalidArgument
+         * @psalm-suppress PossiblyInvalidCast
+         */
+        $rootDir = $container->getParameter('kernel.project_dir');
+        assert(is_string($rootDir));
 
-        foreach ($container->getParameter('kernel.bundles') as $name => $class) {
-            if (null !== ($path = $this->getResourcePathFromBundle($rootDir, $name, $class))) {
+        /**
+         * @psalm-suppress UndefinedDocblockClass - PHP 8 support for UnitEnum declaration.
+         * @var array<string, class-string> $bundles
+         */
+        $bundles = $container->getParameter('kernel.bundles');
+        foreach ($bundles as $name => $class) {
+            $path = $this->getResourcePathFromBundle($rootDir, $name, $class);
+            if (null !== $path) {
                 $paths[] = $path;
             }
         }
@@ -77,21 +94,22 @@ class CcaDependencyInjectionExtension extends Extension
     /**
      * Generate the path from the bundle (if any exists).
      *
-     * @param string $rootDir The app root dir.
-     * @param string $name    The name of the bundle.
-     * @param string $class   The bundle class name.
-     *
-     * @return string|null
+     * @param string       $rootDir The app root dir.
+     * @param string       $name    The name of the bundle.
+     * @param class-string $class   The bundle class name.
      */
-    private function getResourcePathFromBundle($rootDir, $name, $class)
+    private function getResourcePathFromBundle(string $rootDir, string $name, string $class): ?string
     {
-        if ('Contao\CoreBundle\HttpKernel\Bundle\ContaoModuleBundle' === $class) {
-            $path = sprintf('%s/system/modules/%s', $rootDir, $name);
-        } else {
-            $path = $this->getResourcePathFromClassName($class);
+        $path = (ContaoModuleBundle::class === $class)
+            ? sprintf('%s/system/modules/%s', $rootDir, $name)
+            : $this->getResourcePathFromClassName($class);
+
+        if (null === $path) {
+            return null;
         }
 
-        if (null !== $path && is_readable($file = $path . '/config/services.php')) {
+        $file = $path . '/config/services.php';
+        if (is_readable($file)) {
             return $file;
         }
 
@@ -101,15 +119,13 @@ class CcaDependencyInjectionExtension extends Extension
     /**
      * Returns the resources path from the class name.
      *
-     * @param string $class The class name of the bundle.
-     *
-     * @return string|null
+     * @param class-string $class The class name of the bundle.
      */
-    private function getResourcePathFromClassName($class)
+    private function getResourcePathFromClassName(string $class): ?string
     {
-        $reflection = new \ReflectionClass($class);
-
-        if (is_dir($dir = dirname($reflection->getFileName()) . '/Resources/contao')) {
+        $reflection = new ReflectionClass($class);
+        $dir = dirname($reflection->getFileName()) . '/Resources/contao';
+        if (is_dir($dir)) {
             return $dir;
         }
 

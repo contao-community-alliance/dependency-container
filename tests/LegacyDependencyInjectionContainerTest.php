@@ -32,10 +32,9 @@ class LegacyDependencyInjectionContainerTest extends TestCase
 {
     /**
      * Test that the service is retrieved from the legacy container.
-     *
-     * @return void
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function testGetService()
+    public function testGetService(): void
     {
         if (!interface_exists('Contao\CoreBundle\Framework\ContaoFrameworkInterface')) {
             $this->markTestSkipped('Only available in Contao 4');

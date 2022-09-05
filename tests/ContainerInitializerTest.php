@@ -24,11 +24,15 @@
 namespace DependencyInjection\Container\Test;
 
 use Contao\System;
+use DateTime;
 use DependencyInjection\Container\ContainerInitializer;
 use DependencyInjection\Container\PimpleGate;
 use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Test the class ContainerInitializer.
@@ -41,11 +45,11 @@ class ContainerInitializerTest extends TestCase
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         unset($GLOBALS['container']);
-        $reflection = new \ReflectionProperty(System::class, 'objContainer');
+        $reflection = new ReflectionProperty(System::class, 'objContainer');
         $reflection->setAccessible(true);
         $reflection->setValue(null, null);
     }
@@ -53,30 +57,30 @@ class ContainerInitializerTest extends TestCase
     /**
      * Test that an exception is thrown when the container is invalid.
      *
-     * @return void
-     *
-     * @expectedException        \RuntimeException
-     * @expectedExceptionMessage Dependency container is incompatible class. Expected PimpleGate but found DateTime
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function testBailsForInvalidContainer()
+    public function testBailsForInvalidContainer(): void
     {
-        $GLOBALS['container'] = new \DateTime();
+        $GLOBALS['container'] = new DateTime();
 
         $initializer = new ContainerInitializer();
 
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Dependency container is incompatible class. Expected PimpleGate but found DateTime'
+        );
         $initializer->init();
     }
 
     /**
      * Test that the symfony container is fetched.
      *
-     * @return void
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    public function testObtainsSymfonyContainerFromSystemClass()
+    public function testObtainsSymfonyContainerFromSystemClass(): void
     {
-        System::setContainer(
-            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
-        );
+        System::setContainer($container = $this->getMockForAbstractClass(ContainerInterface::class));
 
         $container
             ->expects($this->once())
@@ -95,14 +99,14 @@ class ContainerInitializerTest extends TestCase
     /**
      * Test that the symfony container is fetched.
      *
-     * @return void
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function testObtainsSymfonyContainerFromKernel()
+    public function testObtainsSymfonyContainerFromKernel(): void
     {
         $GLOBALS['kernel'] = $this->getMockForAbstractClass('Symfony\Component\HttpKernel\KernelInterface');
 
         $GLOBALS['kernel']->expects($this->once())->method('getContainer')->willReturn(
-            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
+            $container = $this->getMockForAbstractClass(ContainerInterface::class)
         );
 
         $container
@@ -121,15 +125,13 @@ class ContainerInitializerTest extends TestCase
 
     /**
      * Test that the symfony container is not fetched when none is available.
-     *
-     * @return void
-     *
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Could not obtain symfony container
      */
-    public function testThrowsWhenSymfonyContainerNotAvailable()
+    public function testThrowsWhenSymfonyContainerNotAvailable(): void
     {
         $initializer = $this->mockInitializer();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not obtain symfony container');
 
         $initializer->init();
     }
@@ -137,18 +139,14 @@ class ContainerInitializerTest extends TestCase
     /**
      * Test the init method.
      *
-     * @return void
-     *
-     * @expectedException Exception
-     * @expectedExceptionMessageFormat  %s/Mocks/Bundles/TestBundle/Resources/contao/config/services.php loaded
-     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function testInit()
     {
         System::setContainer(
-            $container = $this->getMockForAbstractClass('Symfony\Component\DependencyInjection\ContainerInterface')
+            $container = $this->getMockForAbstractClass(ContainerInterface::class)
         );
 
         $container
@@ -161,6 +159,10 @@ class ContainerInitializerTest extends TestCase
 
         $initializer = $this->mockInitializer();
 
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches(
+            '#.*/Mocks/Bundles/TestBundle/Resources/contao/config/services.php loaded#'
+        );
         /** @var ContainerInitializer $initializer */
         $initializer->init();
     }
@@ -168,19 +170,17 @@ class ContainerInitializerTest extends TestCase
     /**
      * Mock an initializer with the passed singletons
      *
-     * @param array $singletons
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ContainerInitializer
+     * @return MockObject|ContainerInitializer
      */
-    private function mockInitializer($singletons = [])
+    private function mockInitializer(array $singletons = []): ContainerInitializer
     {
-        $initializer = $this->getMockBuilder('DependencyInjection\Container\ContainerInitializer')
-            ->setMethods(['getInstanceOf'])
+        $initializer = $this->getMockBuilder(ContainerInitializer::class)
+            ->onlyMethods(['getInstanceOf'])
             ->getMock();
 
         if (empty($singletons)) {
             $singletons = [
-                'Contao\Config' => $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock()
+                'Contao\Config' => $config = $this->getMockBuilder('stdClass')->addMethods(['get'])->getMock()
             ];
             $config
                 ->expects($this->any())
@@ -194,7 +194,7 @@ class ContainerInitializerTest extends TestCase
             ->willReturnCallback(function ($className) use ($singletons) {
                 $singleton = trim($className, '\\');
                 if (!isset($singletons[$singleton])) {
-                    throw new \RuntimeException('Not mocked! ' . $className);
+                    throw new RuntimeException('Not mocked! ' . $className);
                 }
 
                 return $singletons[$singleton];

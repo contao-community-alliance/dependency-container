@@ -23,7 +23,7 @@ system/modules/X/config/services.php
 ```php
 $container['myservice.param'] = 'value';
 $container['myservice'] = function($container) {
-	return new MyServiceClassName();
+    return new MyServiceClassName();
 }
 ```
 
@@ -33,13 +33,13 @@ Access parameters and services
 ```php
 class MyClass
 {
-	function myFunction()
-	{
-		global $container;
+    function myFunction()
+    {
+        global $container;
 
-		$parameter = $container['myservice.param'];
-		$service = $container['myservice'];
-	}
+        $parameter = $container['myservice.param'];
+        $service = $container['myservice'];
+    }
 }
 ```
 

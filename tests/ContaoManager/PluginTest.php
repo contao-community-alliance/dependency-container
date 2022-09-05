@@ -16,7 +16,6 @@
  * @filesource
  */
 
-
 namespace DependencyInjection\Container\Test\ContaoManager;
 
 use Contao\CoreBundle\ContaoCoreBundle;

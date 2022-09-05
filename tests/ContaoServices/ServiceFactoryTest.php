@@ -28,17 +28,21 @@ use DependencyInjection\Container\ContaoServices\ServiceFactory;
 use DependencyInjection\Container\PageProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use stdClass;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+use function array_values;
+
+/**
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ */
 class ServiceFactoryTest extends TestCase
 {
     /**
      * Provider method for plain singletons.
-     *
-     * @return array
      */
-    public function plainSingletonProvider()
+    public function plainSingletonProvider(): array
     {
         return [
             'Config' => [
@@ -66,10 +70,9 @@ class ServiceFactoryTest extends TestCase
      * @param string $singleton The singleton class to create.
      * @param string $method    The factory method to call.
      *
-     * @return void
      * @dataProvider plainSingletonProvider()
      */
-    public function testPlainSingletonServiceCreator($singleton, $method)
+    public function testPlainSingletonServiceCreator(string $singleton, string $method): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
@@ -81,7 +84,7 @@ class ServiceFactoryTest extends TestCase
             ->with('contao.framework')
             ->willReturn($framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class));
 
-        $instance = new \stdClass();
+        $instance = new stdClass();
 
         $framework
             ->expects($this->once())
@@ -94,13 +97,8 @@ class ServiceFactoryTest extends TestCase
 
     /**
      * Test the createUserService method in Backend mode.
-     *
-     * @return void
-     *
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Contao Database is not properly configured
      */
-    public function testCreateUserServiceWithoutDbParameter()
+    public function testCreateUserServiceWithoutDbParameter(): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
@@ -114,9 +112,9 @@ class ServiceFactoryTest extends TestCase
                 ['request_stack']
             )
             ->willReturnOnConsecutiveCalls(
-                $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock(),
-                $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class),
-                $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock()
+                $config = $this->getMockBuilder(stdClass::class)->addMethods(['get'])->getMock(),
+                $this->getMockForAbstractClass(ContaoFrameworkInterface::class),
+                $this->getMockBuilder(stdClass::class)->addMethods(['getCurrentRequest'])->getMock()
             );
         $container
             ->method('hasParameter')
@@ -129,18 +127,15 @@ class ServiceFactoryTest extends TestCase
             ->with('dbDatabase')
             ->willReturn(null);
 
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Contao Database is not properly configured');
         $factory->createUserService();
     }
 
     /**
      * Test the createUserService method in Backend mode.
-     *
-     * @return void
-     *
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Contao Database is not properly configured
      */
-    public function testCreateUserServiceWithoutDb()
+    public function testCreateUserServiceWithoutDb(): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
@@ -154,9 +149,9 @@ class ServiceFactoryTest extends TestCase
                 ['request_stack']
             )
             ->willReturnOnConsecutiveCalls(
-                $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock(),
-                $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class),
-                $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock()
+                $config = $this->getMockBuilder(stdClass::class)->addMethods(['get'])->getMock(),
+                $this->getMockForAbstractClass(ContaoFrameworkInterface::class),
+                $this->getMockBuilder(stdClass::class)->addMethods(['getCurrentRequest'])->getMock()
             );
         $container
             ->method('hasParameter')
@@ -169,22 +164,25 @@ class ServiceFactoryTest extends TestCase
             ->with('dbDatabase')
             ->willReturn(null);
 
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Contao Database is not properly configured');
         $factory->createUserService();
     }
 
     /**
      * Test the createUserService method in Backend mode.
-     *
-     * @return void
      */
-    public function testCreateUserServiceForBackend()
+    public function testCreateUserServiceForBackend(): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
         );
-        $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock();
-        $scopeMatcher = $this->getMockBuilder(ScopeMatcher::class)->disableOriginalConstructor()->setMethods(['isBackendRequest'])->getMock();
-        $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock();
+        $config = $this->getMockBuilder(stdClass::class)->addMethods(['get'])->getMock();
+        $scopeMatcher = $this->getMockBuilder(ScopeMatcher::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['isBackendRequest'])
+            ->getMock();
+        $requestStack = $this->getMockBuilder(stdClass::class)->addMethods(['getCurrentRequest'])->getMock();
         $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class);
 
         $container
@@ -225,7 +223,7 @@ class ServiceFactoryTest extends TestCase
             ->method('getCurrentRequest')
             ->willReturn($request);
 
-        $instance = new \stdClass();
+        $instance = new stdClass();
 
         $framework
             ->expects($this->once())
@@ -238,21 +236,19 @@ class ServiceFactoryTest extends TestCase
 
     /**
      * Test the createUserService method in Frontend mode.
-     *
-     * @return void
      */
-    public function testCreateUserServiceForFrontend()
+    public function testCreateUserServiceForFrontend(): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
         );
-        $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock();
+        $config = $this->getMockBuilder(stdClass::class)->addMethods(['get'])->getMock();
         $scopeMatcher = $this
             ->getMockBuilder(ScopeMatcher::class)
             ->disableOriginalConstructor()
-            ->setMethods(['isBackendRequest', 'isFrontendRequest'])
+            ->onlyMethods(['isBackendRequest', 'isFrontendRequest'])
             ->getMock();
-        $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock();
+        $requestStack = $this->getMockBuilder(stdClass::class)->addMethods(['getCurrentRequest'])->getMock();
         $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class);
 
         $container
@@ -299,7 +295,7 @@ class ServiceFactoryTest extends TestCase
             ->method('getCurrentRequest')
             ->willReturn($request);
 
-        $instance = new \stdClass();
+        $instance = new stdClass();
 
         $framework
             ->expects($this->once())
@@ -312,21 +308,19 @@ class ServiceFactoryTest extends TestCase
 
     /**
      * Test the createUserService method in CLI mode.
-     *
-     * @return void
      */
-    public function testCreateUserServiceForCliWithoutRequest()
+    public function testCreateUserServiceForCliWithoutRequest(): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
         );
-        $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock();
+        $config = $this->getMockBuilder(stdClass::class)->addMethods(['get'])->getMock();
         $scopeMatcher = $this
             ->getMockBuilder(ScopeMatcher::class)
             ->disableOriginalConstructor()
-            ->setMethods(['isBackendRequest', 'isFrontendRequest'])
+            ->onlyMethods(['isBackendRequest', 'isFrontendRequest'])
             ->getMock();
-        $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock();
+        $requestStack = $this->getMockBuilder(stdClass::class)->addMethods(['getCurrentRequest'])->getMock();
         $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class);
 
         $container
@@ -369,7 +363,7 @@ class ServiceFactoryTest extends TestCase
             ->method('getCurrentRequest')
             ->willReturn(null);
 
-        $instance = new \stdClass();
+        $instance = new stdClass();
 
         $framework
             ->expects($this->once())
@@ -382,24 +376,19 @@ class ServiceFactoryTest extends TestCase
 
     /**
      * Test the createUserService method in Frontend mode.
-     *
-     * @return void
-     *
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Unknown TL_MODE encountered
      */
-    public function testCreateUserServiceForUnkownRequest()
+    public function testCreateUserServiceForUnkownRequest(): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
         );
-        $config = $this->getMockBuilder('stdClass')->setMethods(['get'])->getMock();
+        $config = $this->getMockBuilder(stdClass::class)->addMethods(['get'])->getMock();
         $scopeMatcher = $this
             ->getMockBuilder(ScopeMatcher::class)
             ->disableOriginalConstructor()
-            ->setMethods(['isBackendRequest', 'isFrontendRequest'])
+            ->onlyMethods(['isBackendRequest', 'isFrontendRequest'])
             ->getMock();
-        $requestStack = $this->getMockBuilder('stdClass')->setMethods(['getCurrentRequest'])->getMock();
+        $requestStack = $this->getMockBuilder(stdClass::class)->addMethods(['getCurrentRequest'])->getMock();
         $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class);
 
         $container
@@ -446,22 +435,23 @@ class ServiceFactoryTest extends TestCase
             ->method('getCurrentRequest')
             ->willReturn($request);
 
-        $instance = new \stdClass();
+        $instance = new stdClass();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unknown TL_MODE encountered');
 
         $this->assertSame($instance, $factory->createUserService());
     }
 
     /**
      * Test the createDatabaseConnectionService method in Backend mode.
-     *
-     * @return void
      */
-    public function testCreateDatabaseConnectionService()
+    public function testCreateDatabaseConnectionService(): void
     {
         $factory = new ServiceFactory(
             $container = $this->getMockForAbstractClass(ContainerInterface::class)
         );
-        $user = $this->getMockBuilder('stdClass')->getMock();
+        $user = $this->getMockBuilder(stdClass::class)->getMock();
         $framework = $this->getMockForAbstractClass(ContaoFrameworkInterface::class);
 
         $container
@@ -475,7 +465,7 @@ class ServiceFactoryTest extends TestCase
                 $framework
             );
 
-        $instance = new \stdClass();
+        $instance = new stdClass();
 
         $framework
             ->expects($this->once())
@@ -489,18 +479,18 @@ class ServiceFactoryTest extends TestCase
     /**
      * Test the createPageProviderService() method.
      *
-     * @return void
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function testCreatePageProviderService()
+    public function testCreatePageProviderService(): void
     {
         $factory = new ServiceFactory(
-            $container = $this->getMockForAbstractClass(ContainerInterface::class)
+            $this->getMockForAbstractClass(ContainerInterface::class)
         );
         $this->assertInstanceOf(PageProvider::class, $factory->createPageProviderService());
 
         $this->assertEquals(
             0,
-            array_search([PageProvider::class, 'setPage'], $GLOBALS['TL_HOOKS']['getPageLayout']),
+            array_search([PageProvider::class, 'setPage'], array_values($GLOBALS['TL_HOOKS']['getPageLayout'])),
             'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
         );
     }
@@ -508,24 +498,24 @@ class ServiceFactoryTest extends TestCase
     /**
      * Test the createPageProviderService() method.
      *
-     * @return void
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function testCreatePageProviderServiceWithPreExistingHook()
+    public function testCreatePageProviderServiceWithPreExistingHook(): void
     {
-        $GLOBALS['TL_HOOKS'] = array(
-            'getPageLayout' => array(
-                array('Another', 'hook')
-            ),
-        );
+        $GLOBALS['TL_HOOKS'] = [
+            'getPageLayout' => [
+                ['Another', 'hook']
+            ],
+        ];
 
         $factory = new ServiceFactory(
-            $container = $this->getMockForAbstractClass(ContainerInterface::class)
+            $this->getMockForAbstractClass(ContainerInterface::class)
         );
         $this->assertInstanceOf(PageProvider::class, $factory->createPageProviderService());
 
         $this->assertEquals(
             0,
-            array_search([PageProvider::class, 'setPage'], $GLOBALS['TL_HOOKS']['getPageLayout']),
+            array_search([PageProvider::class, 'setPage'], array_values($GLOBALS['TL_HOOKS']['getPageLayout'])),
             'PageProvider::setPage() is not the first hook in TL_HOOKS::getPageLayout!'
         );
     }

@@ -22,6 +22,8 @@
 
 namespace DependencyInjection\Container;
 
+use Contao\PageModel;
+
 /**
  * A provider that provide the current active page model.
  */
@@ -30,29 +32,31 @@ class PageProvider
     /**
      * The current page.
      *
-     * @var \PageModel|null
+     * @var PageModel|null
      */
-    private $page;
+    private ?PageModel $page = null;
 
     /**
      * Singleton service.
      *
-     * @return PageProvider
+     * @psalm-suppress MixedInferredReturnType
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public static function getInstance()
+    public static function getInstance(): PageProvider
     {
+        /**
+         * @psalm-suppress MixedReturnStatement
+         * @psalm-suppress MixedArrayAccess
+         */
         return $GLOBALS['container']['page-provider'];
     }
 
     /**
      * Get the current page.
-     *
-     * @return \PageModel|null
      */
-    public function getPage()
+    public function getPage(): ?PageModel
     {
         return $this->page;
     }
@@ -60,13 +64,11 @@ class PageProvider
     /**
      * Set the current page.
      *
-     * @param \PageModel $page The page model.
-     *
-     * @return static
+     * @param PageModel $page The page model.
      *
      * @internal
      */
-    public function setPage($page)
+    public function setPage(PageModel $page): PageProvider
     {
         $this->page = $page;
         return $this;
